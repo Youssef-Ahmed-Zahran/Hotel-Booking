@@ -1,0 +1,305 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum ApartmentType {
+  STUDIO           // Open-plan single room with kitchenette
+  ONE_BEDROOM      // 1 bedroom + living area
+  TWO_BEDROOM      // 2 bedrooms + living area
+  THREE_BEDROOM    // 3 bedrooms + living area
+  PENTHOUSE        // Luxury top-floor apartment
+  SUITE            // High-end apartment with premium amenities
+}
+
+enum RoomType {
+  SINGLE           // Basic room for solo travelers	1 guest	1 single bed
+  DOUBLE           // Room with one large bed	1-2 guests	1 double/queen/king bed
+  TWIN             // Room with two separate beds	2 guests	2 single beds
+  SUITE            // Luxury room with separate living area	2-4 guests	Bedroom + living room
+  DELUXE           // Premium room with upgraded amenities	2-3 guests	1 large bed + extras
+  FAMILY           // Spacious room for families	4-6 guests	Multiple beds
+}
+
+enum BookingType {
+  APARTMENT
+  ROOM
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum ReviewType {
+  HOTEL
+  APARTMENT
+  ROOM
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  CASH
+  BANK_TRANSFER
+}
+
+// Models
+model User {
+  id              String   @id @default(uuid()) @db.Uuid
+  username        String   @unique
+  email           String   @unique
+  password        String
+  firstName       String?  @map("first_name")
+  lastName        String?  @map("last_name")
+  phoneNumber     String?  @map("phone_number")
+  profileImageUrl String?  @map("profile_image_url")
+  role            UserRole @default(USER)
+
+  // Audit fields
+  createdBy        String?  @map("created_by")
+  createdDate      DateTime @default(now()) @map("created_date")
+  lastModifiedBy   String?  @map("last_modified_by")
+  lastModifiedDate DateTime @updatedAt @map("last_modified_date")
+
+  // Relations
+  bookings Booking[]
+  reviews  Review[]
+
+  @@map("users")
+}
+
+model Hotel {
+  id          String  @id @default(uuid()) @db.Uuid
+  email       String  @unique
+  name        String
+  description String? @db.Text
+  address     String
+  city        String
+  country     String
+  postalCode  String? @map("postal_code")
+  phoneNumber String? @map("phone_number")
+  imageUrl    String? @map("image_url")
+  rating      Decimal @default(1) @db.Decimal(3, 2)
+  isActive    Boolean @default(true) @map("is_active")
+  isFeatured  Boolean @default(false) @map("is_featured")
+
+  // Audit fields
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  apartments Apartment[]
+  rooms      Room[]
+  bookings   Booking[]
+  reviews    Review[]
+
+
+  @@map("hotels")
+}
+
+
+
+model Apartment {
+  id                      String   @id @default(uuid()) @db.Uuid
+  apartmentNumber         String   @map("apartment_number")
+  name                    String
+  description             String?  @db.Text
+  images                  String[] @map("images")
+  pricePerNight           Decimal  @map("price_per_night") @db.Decimal(10, 2)
+  totalCapacity           Int      @map("total_capacity")
+  numberOfBedrooms        Int      @map("number_of_bedrooms")
+  numberOfBathrooms       Int      @map("number_of_bathrooms")
+  floorNumber             Int?     @map("floor_number")
+  areaSqm                 Decimal? @map("area_sqm") @db.Decimal(10, 2)
+  isAvailable             Boolean  @default(true) @map("is_available")
+  roomsBookableSeparately Boolean  @default(false) @map("rooms_bookable_separately")
+
+  // Amenities
+  hasKitchen         Boolean @default(true) @map("has_kitchen")
+  hasLivingRoom      Boolean @default(true) @map("has_living_room")
+  hasDiningArea      Boolean @default(false) @map("has_dining_area")
+  hasBalcony         Boolean @default(false) @map("has_balcony")
+  hasWifi            Boolean @default(true) @map("has_wifi")
+  hasAirConditioning Boolean @default(true) @map("has_air_conditioning")
+  hasParking         Boolean @default(false) @map("has_parking")
+  hasLaundry         Boolean @default(false) @map("has_laundry")
+
+  apartmentType ApartmentType @map("apartment_type")
+
+  // Audit fields
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  hotelId String @map("hotel_id") @db.Uuid
+  hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  rooms             Room[]
+  apartmentBookings Booking[]
+  availability      ApartmentAvailability[]
+  reviews           Review[]
+
+  @@map("apartments")
+}
+
+model Room {
+  id                   String  @id @default(uuid()) @db.Uuid
+  roomNumber           String  @map("room_number")
+  description          String? @db.Text
+  images                  String[] @map("images")
+  pricePerNight        Decimal @map("price_per_night") @db.Decimal(10, 2)
+  capacity             Int
+  isAvailable          Boolean @default(true) @map("is_available")
+  bookableIndividually Boolean @default(true) @map("bookable_individually")
+
+  // Amenities
+  hasWifi            Boolean @default(true) @map("has_wifi")
+  hasAirConditioning Boolean @default(true) @map("has_air_conditioning")
+  hasTv              Boolean @default(true) @map("has_tv")
+  hasMiniBar         Boolean @default(false) @map("has_mini_bar")
+  hasBalcony         Boolean @default(false) @map("has_balcony")
+  hasPrivateBathroom Boolean @default(true) @map("has_private_bathroom")
+
+  roomType RoomType @map("room_type")
+
+  // Audit fields
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations - Room can belong to either Hotel directly or Apartment
+  hotelId String? @map("hotel_id") @db.Uuid
+  hotel   Hotel?  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  apartmentId String?    @map("apartment_id") @db.Uuid
+  apartment   Apartment? @relation(fields: [apartmentId], references: [id], onDelete: Cascade)
+
+  roomBookings Booking[]
+  availability RoomAvailability[]
+  reviews      Review[]
+
+  @@map("rooms")
+}
+
+model Booking {
+  id             String        @id @default(uuid()) @db.Uuid
+  checkInDate    DateTime      @map("check_in_date") @db.Date
+  checkOutDate   DateTime      @map("check_out_date") @db.Date
+  numberOfGuests Int           @map("number_of_guests")
+  bookingType    BookingType   @map("booking_type")
+  status         BookingStatus @default(PENDING)
+
+  // Payment Information (embedded)
+  paymentAmount        Decimal       @map("payment_amount") @db.Decimal(10, 2)
+  paymentCurrency      String        @default("USD") @map("payment_currency")
+  paymentMethod        PaymentMethod @map("payment_method")
+  paymentStatus        PaymentStatus @default(PENDING) @map("payment_status")
+  paymentTransactionId String?       @map("payment_transaction_id")
+  paymentCompletedAt   DateTime?     @map("payment_completed_at")
+
+  // Audit fields
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  hotelId String @map("hotel_id") @db.Uuid
+  hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  // For apartment bookings (entire apartment)
+  apartmentId String?    @map("apartment_id") @db.Uuid
+  apartment   Apartment? @relation(fields: [apartmentId], references: [id], onDelete: SetNull)
+
+  // For individual room bookings
+  roomId String? @map("room_id") @db.Uuid
+  room   Room?   @relation(fields: [roomId], references: [id], onDelete: SetNull)
+
+  // One-to-one with Review
+  review Review?
+
+  @@map("bookings")
+}
+
+model Review {
+  id         String     @id @default(uuid()) @db.Uuid
+  rating     Int
+  comment    String?    @db.Text
+  reviewType ReviewType @map("review_type")
+
+  // Audit fields
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  hotelId String @map("hotel_id") @db.Uuid
+  hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  apartmentId String?    @map("apartment_id") @db.Uuid
+  apartment   Apartment? @relation(fields: [apartmentId], references: [id], onDelete: SetNull)
+
+  roomId String? @map("room_id") @db.Uuid
+  room   Room?   @relation(fields: [roomId], references: [id], onDelete: SetNull)
+
+  bookingId String?  @unique @map("booking_id") @db.Uuid
+  booking   Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@map("reviews")
+}
+
+model ApartmentAvailability {
+  id          String   @id @default(uuid()) @db.Uuid
+  date        DateTime @db.Date
+  isAvailable Boolean  @default(true) @map("is_available")
+
+  // Audit fields
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  apartmentId String    @map("apartment_id") @db.Uuid
+  apartment   Apartment @relation(fields: [apartmentId], references: [id], onDelete: Cascade)
+
+  @@unique([apartmentId, date])
+  @@map("apartment_availability")
+}
+
+model RoomAvailability {
+  id          String   @id @default(uuid()) @db.Uuid
+  date        DateTime @db.Date
+  isAvailable Boolean  @default(true) @map("is_available")
+
+  // Audit fields
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  roomId String @map("room_id") @db.Uuid
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, date])
+  @@map("room_availability")
+}
