@@ -11,6 +11,7 @@ import userRoutes from "./modules/user/routes/user.routes.js";
 import authRoutes from "./modules/auth/routes/auth.routes.js";
 import hotelRoutes from "./modules/hotel/routes/hotel.routes.js";
 import apartmentRoutes from "./modules/apartment/routes/apartment.routes.js";
+import apartmentAvailabilityRoutes from "./modules/apartment-availability/routes/apartment-availability.routes.js";
 
 // Express Usages
 dotenv.config();
@@ -49,6 +50,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/hotels", hotelRoutes);
 app.use("/api/apartments", apartmentRoutes);
+app.use("/api/apartment-availability", apartmentAvailabilityRoutes);
 
 // PayPal
 app.get("/api/v1/config/paypal", (req, res) => {
