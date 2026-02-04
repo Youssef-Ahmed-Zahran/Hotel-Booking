@@ -7,6 +7,8 @@ import prisma from "./config/db.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 
 // Import routes
+import userRoutes from "./modules/user/routes/user.routes.js";
+import authRoutes from "./modules/auth/routes/auth.routes.js";
 
 // Express Usages
 dotenv.config();
@@ -41,6 +43,8 @@ app.get("/", async (req, res) => {
 });
 
 // Routes
+app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
 
 // Nested routes for better organization
 
