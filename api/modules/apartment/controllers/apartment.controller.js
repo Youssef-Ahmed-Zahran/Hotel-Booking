@@ -29,15 +29,7 @@ export const createApartment = async (req, res, next) => {
       areaSqm,
       apartmentType,
       roomsBookableSeparately,
-      // Amenities
-      hasKitchen,
-      hasLivingRoom,
-      hasDiningArea,
-      hasBalcony,
-      hasWifi,
-      hasAirConditioning,
-      hasParking,
-      hasLaundry,
+      amenityIds, // Array of amenity IDs
     } = req.body;
 
     // Validate required fields
@@ -97,15 +89,11 @@ export const createApartment = async (req, res, next) => {
         areaSqm,
         apartmentType,
         roomsBookableSeparately: roomsBookableSeparately || false,
-        hasKitchen: hasKitchen !== undefined ? hasKitchen : true,
-        hasLivingRoom: hasLivingRoom !== undefined ? hasLivingRoom : true,
-        hasDiningArea: hasDiningArea || false,
-        hasBalcony: hasBalcony || false,
-        hasWifi: hasWifi !== undefined ? hasWifi : true,
-        hasAirConditioning:
-          hasAirConditioning !== undefined ? hasAirConditioning : true,
-        hasParking: hasParking || false,
-        hasLaundry: hasLaundry || false,
+        amenities: amenityIds
+          ? {
+              connect: amenityIds.map((id) => ({ id })),
+            }
+          : undefined,
       },
       include: {
         hotel: {
@@ -143,6 +131,7 @@ export const getAllApartments = async (req, res, next) => {
       maxPrice,
       minBedrooms,
       isAvailable,
+      amenities, // Comma separated amenity names
     } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -159,6 +148,16 @@ export const getAllApartments = async (req, res, next) => {
     }
     if (minBedrooms) where.numberOfBedrooms = { gte: parseInt(minBedrooms) };
     if (isAvailable !== undefined) where.isAvailable = isAvailable === "true";
+
+    // Filter by amenities
+    if (amenities) {
+      const amenityNames = amenities.split(",");
+      where.amenities = {
+        some: {
+          name: { in: amenityNames },
+        },
+      };
+    }
 
     // Get apartments with pagination
     const [apartments, total] = await Promise.all([
@@ -182,6 +181,7 @@ export const getAllApartments = async (req, res, next) => {
               apartmentBookings: true,
             },
           },
+          amenities: true,
         },
         orderBy: { createdAt: "desc" },
       }),
@@ -212,6 +212,7 @@ export const getApartmentById = async (req, res, next) => {
       include: {
         hotel: true,
         rooms: true,
+        amenities: true,
         _count: {
           select: {
             apartmentBookings: true,
@@ -286,6 +287,14 @@ export const updateApartment = async (req, res, next) => {
       );
     }
 
+    // Handle amenities update
+    if (updateData.amenityIds) {
+      updateData.amenities = {
+        set: updateData.amenityIds.map((id) => ({ id })),
+      };
+      delete updateData.amenityIds;
+    }
+
     // Update apartment
     const apartment = await prisma.apartment.update({
       where: { id },
@@ -293,6 +302,7 @@ export const updateApartment = async (req, res, next) => {
       include: {
         hotel: true,
         rooms: true,
+        amenities: true,
       },
     });
 

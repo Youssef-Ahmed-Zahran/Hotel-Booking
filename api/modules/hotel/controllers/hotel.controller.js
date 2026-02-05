@@ -31,7 +31,10 @@ export const createHotel = async (req, res, next) => {
 
     // Validate required fields
     if (!email || !name || !address || !city || !country) {
-      throw new ApiError(400, "Please provide all required fields: email, name, address, city, country");
+      throw new ApiError(
+        400,
+        "Please provide all required fields: email, name, address, city, country"
+      );
     }
 
     // Check if hotel with same email already exists
@@ -66,9 +69,9 @@ export const createHotel = async (req, res, next) => {
       },
     });
 
-    return res.status(201).json(
-      new ApiResponse(201, hotel, "Hotel created successfully")
-    );
+    return res
+      .status(201)
+      .json(new ApiResponse(201, hotel, "Hotel created successfully"));
   } catch (error) {
     next(error);
   }
@@ -94,9 +97,11 @@ export const getFeaturedHotels = async (req, res, next) => {
       take: 4, // Limit to 4 featured hotels for the home page
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, hotels, "Featured hotels fetched successfully")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, hotels, "Featured hotels fetched successfully")
+      );
   } catch (error) {
     next(error);
   }
@@ -116,6 +121,7 @@ export const getAllHotels = async (req, res, next) => {
       country,
       minRating,
       isActive,
+      amenities, // Comma separated amenity names
     } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -127,6 +133,35 @@ export const getAllHotels = async (req, res, next) => {
     if (country) where.country = { contains: country, mode: "insensitive" };
     if (minRating) where.rating = { gte: parseFloat(minRating) };
     if (isActive !== undefined) where.isActive = isActive === "true";
+
+    // Filter by amenities (Hotels having ANY room or apartment with matching amenities)
+    if (amenities) {
+      const amenityNames = amenities.split(",");
+      where.OR = [
+        {
+          rooms: {
+            some: {
+              amenities: {
+                some: {
+                  name: { in: amenityNames },
+                },
+              },
+            },
+          },
+        },
+        {
+          apartments: {
+            some: {
+              amenities: {
+                some: {
+                  name: { in: amenityNames },
+                },
+              },
+            },
+          },
+        },
+      ];
+    }
 
     // Get hotels with pagination
     const [hotels, total] = await Promise.all([
@@ -201,9 +236,9 @@ export const getHotelById = async (req, res, next) => {
       throw new ApiError(404, "Hotel not found");
     }
 
-    return res.status(200).json(
-      new ApiResponse(200, hotel, "Hotel fetched successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, hotel, "Hotel fetched successfully"));
   } catch (error) {
     next(error);
   }
@@ -260,9 +295,9 @@ export const updateHotel = async (req, res, next) => {
       data: updateData,
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, hotel, "Hotel updated successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, hotel, "Hotel updated successfully"));
   } catch (error) {
     next(error);
   }
@@ -296,9 +331,9 @@ export const deleteHotel = async (req, res, next) => {
       where: { id },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, null, "Hotel deleted successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, "Hotel deleted successfully"));
   } catch (error) {
     next(error);
   }

@@ -112,9 +112,30 @@ model Hotel {
   rooms      Room[]
   bookings   Booking[]
   reviews    Review[]
+  amenities  Amenity[]
 
 
   @@map("hotels")
+}
+
+model Amenity {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+
+  // Relations
+  hotelId String @map("hotel_id") @db.Uuid
+  hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  apartments Apartment[]
+  rooms      Room[]
+
+  // Audit fields
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([hotelId, name])
+  @@map("amenities")
 }
 
 
@@ -134,15 +155,8 @@ model Apartment {
   isAvailable             Boolean  @default(true) @map("is_available")
   roomsBookableSeparately Boolean  @default(false) @map("rooms_bookable_separately")
 
-  // Amenities
-  hasKitchen         Boolean @default(true) @map("has_kitchen")
-  hasLivingRoom      Boolean @default(true) @map("has_living_room")
-  hasDiningArea      Boolean @default(false) @map("has_dining_area")
-  hasBalcony         Boolean @default(false) @map("has_balcony")
-  hasWifi            Boolean @default(true) @map("has_wifi")
-  hasAirConditioning Boolean @default(true) @map("has_air_conditioning")
-  hasParking         Boolean @default(false) @map("has_parking")
-  hasLaundry         Boolean @default(false) @map("has_laundry")
+  // Relations
+  amenities Amenity[]
 
   apartmentType ApartmentType @map("apartment_type")
 
@@ -172,13 +186,8 @@ model Room {
   isAvailable          Boolean @default(true) @map("is_available")
   bookableIndividually Boolean @default(true) @map("bookable_individually")
 
-  // Amenities
-  hasWifi            Boolean @default(true) @map("has_wifi")
-  hasAirConditioning Boolean @default(true) @map("has_air_conditioning")
-  hasTv              Boolean @default(true) @map("has_tv")
-  hasMiniBar         Boolean @default(false) @map("has_mini_bar")
-  hasBalcony         Boolean @default(false) @map("has_balcony")
-  hasPrivateBathroom Boolean @default(true) @map("has_private_bathroom")
+  // Relations
+  amenities Amenity[]
 
   roomType RoomType @map("room_type")
 

@@ -25,13 +25,7 @@ export const createRoom = async (req, res, next) => {
       capacity,
       roomType,
       bookableIndividually,
-      // Amenities
-      hasWifi,
-      hasAirConditioning,
-      hasTv,
-      hasMiniBar,
-      hasBalcony,
-      hasPrivateBathroom,
+      amenityIds, // Array of amenity IDs
     } = req.body;
 
     // Validate: Room must belong to either hotel or apartment
@@ -105,14 +99,11 @@ export const createRoom = async (req, res, next) => {
         roomType,
         bookableIndividually:
           bookableIndividually !== undefined ? bookableIndividually : true,
-        hasWifi: hasWifi !== undefined ? hasWifi : true,
-        hasAirConditioning:
-          hasAirConditioning !== undefined ? hasAirConditioning : true,
-        hasTv: hasTv !== undefined ? hasTv : true,
-        hasMiniBar: hasMiniBar || false,
-        hasBalcony: hasBalcony || false,
-        hasPrivateBathroom:
-          hasPrivateBathroom !== undefined ? hasPrivateBathroom : true,
+        amenities: amenityIds
+          ? {
+            connect: amenityIds.map((id) => ({ id })),
+          }
+          : undefined,
       },
       include: {
         hotel: {
@@ -123,11 +114,10 @@ export const createRoom = async (req, res, next) => {
         },
         apartment: {
           select: {
-            id: true,
-            name: true,
             apartmentNumber: true,
           },
         },
+        amenities: true,
       },
     });
 
@@ -157,6 +147,7 @@ export const getAllRooms = async (req, res, next) => {
       minCapacity,
       isAvailable,
       bookableIndividually,
+      amenities, // Comma separated amenity names
     } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -176,6 +167,16 @@ export const getAllRooms = async (req, res, next) => {
     if (isAvailable !== undefined) where.isAvailable = isAvailable === "true";
     if (bookableIndividually !== undefined)
       where.bookableIndividually = bookableIndividually === "true";
+
+    // Filter by amenities
+    if (amenities) {
+      const amenityNames = amenities.split(",");
+      where.amenities = {
+        some: {
+          name: { in: amenityNames },
+        },
+      };
+    }
 
     // Get rooms with pagination
     const [rooms, total] = await Promise.all([
@@ -204,6 +205,7 @@ export const getAllRooms = async (req, res, next) => {
               roomBookings: true,
             },
           },
+          amenities: true,
         },
         orderBy: { createdAt: "desc" },
       }),
@@ -244,6 +246,7 @@ export const getRoomById = async (req, res, next) => {
       include: {
         hotel: true,
         apartment: true,
+        amenities: true,
         _count: {
           select: {
             roomBookings: true,
@@ -312,6 +315,14 @@ export const updateRoom = async (req, res, next) => {
       updateData.images = await uploadMultipleToCloudinary(images, "rooms");
     }
 
+    // Handle amenities update
+    if (updateData.amenityIds) {
+      updateData.amenities = {
+        set: updateData.amenityIds.map((id) => ({ id })),
+      };
+      delete updateData.amenityIds;
+    }
+
     // Update room
     const room = await prisma.room.update({
       where: { id },
@@ -319,6 +330,7 @@ export const updateRoom = async (req, res, next) => {
       include: {
         hotel: true,
         apartment: true,
+        amenities: true,
       },
     });
 
