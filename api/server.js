@@ -15,6 +15,7 @@ import apartmentAvailabilityRoutes from "./modules/apartment-availability/routes
 import roomRoutes from "./modules/room/routes/room.routes.js";
 import roomAvailabilityRoutes from "./modules/room-availability/routes/room-availability.routes.js";
 import reviewRoutes from "./modules/review/routes/review.routes.js";
+import bookingRoutes from "./modules/Booking/routes/booking.routes.js";
 
 // Express Usages
 dotenv.config();
@@ -57,6 +58,7 @@ app.use("/api/apartment-availability", apartmentAvailabilityRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/room-availability", roomAvailabilityRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 // PayPal
 app.get("/api/v1/config/paypal", (req, res) => {
