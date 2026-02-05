@@ -15,7 +15,7 @@ import apartmentAvailabilityRoutes from "./modules/apartment-availability/routes
 import roomRoutes from "./modules/room/routes/room.routes.js";
 import roomAvailabilityRoutes from "./modules/room-availability/routes/room-availability.routes.js";
 import reviewRoutes from "./modules/review/routes/review.routes.js";
-import bookingRoutes from "./modules/Booking/routes/booking.routes.js";
+import bookingRoutes from "./modules/booking/routes/booking.routes.js";
 
 // Express Usages
 dotenv.config();
