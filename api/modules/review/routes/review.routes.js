@@ -7,7 +7,10 @@ import {
   deleteReview,
   getReviewsByHotel,
 } from "../controllers/review.controller.js";
-import { verifyTokenAndAdmin } from "../../../middlewares/verifyToken.middleware.js";
+import {
+  verifyTokenAndAdmin,
+  verifyTokenAndAuthorization,
+} from "../../../middlewares/verifyToken.middleware.js";
 
 const router = express.Router();
 
@@ -19,6 +22,6 @@ router.get("/:id", getReviewById);
 // User routes
 router.post("/", verifyTokenAndAdmin, createReview);
 router.put("/:id", verifyTokenAndAdmin, updateReview);
-router.delete("/:id", verifyTokenAndAdmin, deleteReview);
+router.delete("/:id", verifyTokenAndAuthorization, deleteReview);
 
 export default router;

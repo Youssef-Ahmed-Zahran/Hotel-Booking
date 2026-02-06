@@ -53,7 +53,7 @@ export const createAmenity = async (req, res, next) => {
 };
 
 // @desc    Get all amenities for a hotel
-// @route   GET /api/amenities/:id
+// @route   GET /api/amenities/hotel/:hotelId
 // @access  Public
 export const getAmenities = async (req, res, next) => {
   try {

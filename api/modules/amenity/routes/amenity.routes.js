@@ -5,11 +5,13 @@ import {
   updateAmenity,
   deleteAmenity,
 } from "../controllers/amenity.controller.js";
+import { verifyTokenAndAdmin } from "../../../middlewares/verifyToken.middleware.js";
 
 const router = express.Router();
 
-router.route("/").post(createAmenity).get(getAmenities);
+router.post("/", verifyTokenAndAdmin, createAmenity);
 router.get("/hotel/:hotelId", getAmenities);
-router.route("/:id").put(updateAmenity).delete(deleteAmenity);
+router.put("/:id", verifyTokenAndAdmin, updateAmenity);
+router.delete("/:id", verifyTokenAndAdmin, deleteAmenity);
 
 export default router;
