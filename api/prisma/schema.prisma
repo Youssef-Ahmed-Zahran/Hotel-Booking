@@ -56,12 +56,7 @@ enum PaymentStatus {
   REFUNDED
 }
 
-enum PaymentMethod {
-  CREDIT_CARD
-  DEBIT_CARD
-  CASH
-  BANK_TRANSFER
-}
+
 
 // Models
 model User {
@@ -220,7 +215,7 @@ model Booking {
   // Payment Information (embedded)
   paymentAmount        Decimal       @map("payment_amount") @db.Decimal(10, 2)
   paymentCurrency      String        @default("USD") @map("payment_currency")
-  paymentMethod        PaymentMethod @map("payment_method")
+  paymentMethod        String        @map("payment_method")
   paymentStatus        PaymentStatus @default(PENDING) @map("payment_status")
   paymentTransactionId String?       @map("payment_transaction_id")
   paymentCompletedAt   DateTime?     @map("payment_completed_at")
