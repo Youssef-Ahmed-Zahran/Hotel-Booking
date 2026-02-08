@@ -117,10 +117,8 @@ model Amenity {
   description String?
 
   // Relations
-  roomId String? @map("room_id") @db.Uuid
-  room   Room?   @relation(fields: [roomId], references: [id], onDelete: Cascade)
-
-  apartments Apartment[]
+  roomId String @map("room_id") @db.Uuid
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   // Audit fields
   createdAt DateTime @default(now()) @map("created_at")
@@ -146,9 +144,6 @@ model Apartment {
   areaSqm                 Decimal? @map("area_sqm") @db.Decimal(10, 2)
   isAvailable             Boolean  @default(true) @map("is_available")
   roomsBookableSeparately Boolean  @default(false) @map("rooms_bookable_separately")
-
-  // Relations
-  amenities Amenity[]
 
   apartmentType ApartmentType @map("apartment_type")
 

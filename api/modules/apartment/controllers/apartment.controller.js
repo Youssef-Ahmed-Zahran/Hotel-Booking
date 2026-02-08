@@ -29,7 +29,6 @@ export const createApartment = async (req, res, next) => {
       areaSqm,
       apartmentType,
       roomsBookableSeparately,
-      amenityIds, // Array of amenity IDs
     } = req.body;
 
     // Validate required fields
@@ -89,11 +88,6 @@ export const createApartment = async (req, res, next) => {
         areaSqm,
         apartmentType,
         roomsBookableSeparately: roomsBookableSeparately || false,
-        amenities: amenityIds
-          ? {
-              connect: amenityIds.map((id) => ({ id })),
-            }
-          : undefined,
       },
       include: {
         hotel: {
@@ -149,16 +143,6 @@ export const getAllApartments = async (req, res, next) => {
     if (minBedrooms) where.numberOfBedrooms = { gte: parseInt(minBedrooms) };
     if (isAvailable !== undefined) where.isAvailable = isAvailable === "true";
 
-    // Filter by amenities
-    if (amenities) {
-      const amenityNames = amenities.split(",");
-      where.amenities = {
-        some: {
-          name: { in: amenityNames },
-        },
-      };
-    }
-
     // Get apartments with pagination
     const [apartments, total] = await Promise.all([
       prisma.apartment.findMany({
@@ -181,7 +165,6 @@ export const getAllApartments = async (req, res, next) => {
               apartmentBookings: true,
             },
           },
-          amenities: true,
         },
         orderBy: { createdAt: "desc" },
       }),
@@ -211,8 +194,11 @@ export const getApartmentById = async (req, res, next) => {
       where: { id },
       include: {
         hotel: true,
-        rooms: true,
-        amenities: true,
+        rooms: {
+          include: {
+            amenities: true,
+          },
+        },
         _count: {
           select: {
             apartmentBookings: true,
@@ -226,9 +212,18 @@ export const getApartmentById = async (req, res, next) => {
       throw new ApiError(404, "Apartment not found");
     }
 
+    // Aggregate all amenities from rooms that belong to this apartment
+    const amenitiesFromRooms = apartment.rooms.flatMap(room => room.amenities);
+
+    // Add the aggregated amenities to the apartment object
+    const apartmentWithAmenities = {
+      ...apartment,
+      amenities: amenitiesFromRooms,
+    };
+
     return res
       .status(200)
-      .json(new ApiResponse(200, apartment, "Apartment fetched successfully"));
+      .json(new ApiResponse(200, apartmentWithAmenities, "Apartment fetched successfully"));
   } catch (error) {
     next(error);
   }
@@ -287,14 +282,6 @@ export const updateApartment = async (req, res, next) => {
       );
     }
 
-    // Handle amenities update
-    if (updateData.amenityIds) {
-      updateData.amenities = {
-        set: updateData.amenityIds.map((id) => ({ id })),
-      };
-      delete updateData.amenityIds;
-    }
-
     // Update apartment
     const apartment = await prisma.apartment.update({
       where: { id },
@@ -302,7 +289,6 @@ export const updateApartment = async (req, res, next) => {
       include: {
         hotel: true,
         rooms: true,
-        amenities: true,
       },
     });
 

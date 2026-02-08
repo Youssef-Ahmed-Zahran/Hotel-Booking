@@ -14,9 +14,9 @@ const router = express.Router();
 
 // Public routes
 router.get("/", getAllApartments);
-router.get("/:id", getApartmentById);
-router.get("/:id/availability", checkApartmentAvailability);
 router.get("/hotel/:hotelId", getApartmentsByHotel);
+router.get("/:id/availability", checkApartmentAvailability);
+router.get("/:id", getApartmentById);
 
 // Admin routes
 router.post("/", verifyTokenAndAdmin, createApartment);
