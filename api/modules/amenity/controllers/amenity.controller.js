@@ -4,43 +4,43 @@ import { ApiResponse } from "../../../utils/ApiResponse.js";
 
 // @desc    Create a new amenity
 // @route   POST /api/amenities
-// @access  Admin (or related Hotel Admin)
+// @access  Admin
 export const createAmenity = async (req, res, next) => {
   try {
-    const { name, description, hotelId } = req.body;
+    const { name, description, roomId } = req.body;
 
-    if (!name || !hotelId) {
-      throw new ApiError(400, "Name and Hotel ID are required");
+    if (!name || !roomId) {
+      throw new ApiError(400, "Name and Room ID are required");
     }
 
-    // Check if hotel exists
-    const hotel = await prisma.hotel.findUnique({
-      where: { id: hotelId },
+    // Check if room exists
+    const room = await prisma.room.findUnique({
+      where: { id: roomId },
     });
 
-    if (!hotel) {
-      throw new ApiError(404, "Hotel not found");
+    if (!room) {
+      throw new ApiError(404, "Room not found");
     }
 
-    // Check if amenity already exists for this hotel
+    // Check if amenity already exists for this room
     const existingAmenity = await prisma.amenity.findUnique({
       where: {
-        hotelId_name: {
-          hotelId,
+        roomId_name: {
+          roomId,
           name,
         },
       },
     });
 
     if (existingAmenity) {
-      throw new ApiError(400, "Amenity already exists for this hotel");
+      throw new ApiError(400, "Amenity already exists for this room");
     }
 
     const amenity = await prisma.amenity.create({
       data: {
         name,
         description,
-        hotelId,
+        roomId,
       },
     });
 
@@ -52,19 +52,19 @@ export const createAmenity = async (req, res, next) => {
   }
 };
 
-// @desc    Get all amenities for a hotel
-// @route   GET /api/amenities/hotel/:hotelId
+// @desc    Get all amenities for a room
+// @route   GET /api/amenities/room/:roomId
 // @access  Public
 export const getAmenities = async (req, res, next) => {
   try {
-    const hotelId = req.params.hotelId;
+    const roomId = req.params.roomId;
 
-    if (!hotelId) {
-      throw new ApiError(400, "Hotel ID is required");
+    if (!roomId) {
+      throw new ApiError(400, "Room ID is required");
     }
 
     const amenities = await prisma.amenity.findMany({
-      where: { hotelId },
+      where: { roomId },
       orderBy: { name: "asc" },
     });
 

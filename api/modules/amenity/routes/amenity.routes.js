@@ -10,7 +10,7 @@ import { verifyTokenAndAdmin } from "../../../middlewares/verifyToken.middleware
 const router = express.Router();
 
 router.post("/", verifyTokenAndAdmin, createAmenity);
-router.get("/hotel/:hotelId", getAmenities);
+router.get("/room/:roomId", getAmenities);
 router.put("/:id", verifyTokenAndAdmin, updateAmenity);
 router.delete("/:id", verifyTokenAndAdmin, deleteAmenity);
 

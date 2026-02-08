@@ -107,8 +107,6 @@ model Hotel {
   rooms      Room[]
   bookings   Booking[]
   reviews    Review[]
-  amenities  Amenity[]
-
 
   @@map("hotels")
 }
@@ -119,17 +117,16 @@ model Amenity {
   description String?
 
   // Relations
-  hotelId String @map("hotel_id") @db.Uuid
-  hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  roomId String @map("room_id") @db.Uuid
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   apartments Apartment[]
-  rooms      Room[]
 
   // Audit fields
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@unique([hotelId, name])
+  @@unique([roomId, name])
   @@map("amenities")
 }
 

@@ -535,6 +535,7 @@ export const getRoomsByApartment = async (req, res, next) => {
     const rooms = await prisma.room.findMany({
       where: { apartmentId },
       include: {
+        amenities: true,
         _count: {
           select: {
             roomBookings: true,
@@ -585,6 +586,7 @@ export const getRoomsByHotel = async (req, res, next) => {
             roomBookings: true,
           },
         },
+        amenities: true,
       },
       orderBy: { roomNumber: "asc" },
     });

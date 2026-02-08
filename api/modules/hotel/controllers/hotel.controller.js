@@ -217,11 +217,18 @@ export const getHotelById = async (req, res, next) => {
       include: {
         apartments: {
           include: {
-            rooms: true,
+            rooms: {
+              include: {
+                amenities: true,
+              },
+            },
           },
         },
         rooms: {
           where: { apartmentId: null }, // Only standalone rooms
+          include: {
+            amenities: true,
+          },
         },
         _count: {
           select: {
