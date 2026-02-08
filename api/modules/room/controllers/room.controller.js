@@ -245,7 +245,11 @@ export const getRoomById = async (req, res, next) => {
       where: { id },
       include: {
         hotel: true,
-        apartment: true,
+        apartment: {
+          include: {
+            amenities: true,
+          },
+        },
         amenities: true,
         _count: {
           select: {

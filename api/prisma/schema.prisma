@@ -117,8 +117,8 @@ model Amenity {
   description String?
 
   // Relations
-  roomId String @map("room_id") @db.Uuid
-  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId String? @map("room_id") @db.Uuid
+  room   Room?   @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   apartments Apartment[]
 

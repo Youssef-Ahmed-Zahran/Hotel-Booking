@@ -7,40 +7,57 @@ import { ApiResponse } from "../../../utils/ApiResponse.js";
 // @access  Admin
 export const createAmenity = async (req, res, next) => {
   try {
-    const { name, description, roomId } = req.body;
+    const { name, description, roomId, apartmentIds } = req.body;
 
-    if (!name || !roomId) {
-      throw new ApiError(400, "Name and Room ID are required");
+    if (!name) {
+      throw new ApiError(400, "Name is required");
     }
 
-    // Check if room exists
-    const room = await prisma.room.findUnique({
-      where: { id: roomId },
-    });
-
-    if (!room) {
-      throw new ApiError(404, "Room not found");
+    // Validate that at least one of roomId or apartmentIds is provided
+    if (!roomId && (!apartmentIds || apartmentIds.length === 0)) {
+      throw new ApiError(400, "Either roomId or apartmentIds must be provided");
     }
 
-    // Check if amenity already exists for this room
-    const existingAmenity = await prisma.amenity.findUnique({
-      where: {
-        roomId_name: {
-          roomId,
-          name,
+    // If roomId is provided, check if room exists
+    if (roomId) {
+      const room = await prisma.room.findUnique({
+        where: { id: roomId },
+      });
+
+      if (!room) {
+        throw new ApiError(404, "Room not found");
+      }
+
+      // Check if amenity already exists for this room
+      const existingAmenity = await prisma.amenity.findUnique({
+        where: {
+          roomId_name: {
+            roomId,
+            name,
+          },
         },
-      },
-    });
+      });
 
-    if (existingAmenity) {
-      throw new ApiError(400, "Amenity already exists for this room");
+      if (existingAmenity) {
+        throw new ApiError(400, "Amenity already exists for this room");
+      }
     }
 
+    // Create amenity with optional apartment connections
     const amenity = await prisma.amenity.create({
       data: {
         name,
         description,
-        roomId,
+        roomId: roomId || null,
+        apartments: apartmentIds && apartmentIds.length > 0
+          ? {
+            connect: apartmentIds.map((id) => ({ id })),
+          }
+          : undefined,
+      },
+      include: {
+        apartments: true,
+        room: true,
       },
     });
 
