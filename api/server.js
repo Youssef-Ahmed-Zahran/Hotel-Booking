@@ -17,6 +17,7 @@ import roomAvailabilityRoutes from "./modules/room-availability/routes/room-avai
 import reviewRoutes from "./modules/review/routes/review.routes.js";
 import bookingRoutes from "./modules/booking/routes/booking.routes.js";
 import amenityRoutes from "./modules/amenity/routes/amenity.routes.js";
+import dashboardRoutes from "./modules/dashboard/routes/dashboard.routes.js";
 
 // Express Usages
 dotenv.config();
@@ -25,12 +26,24 @@ dotenv.config();
 const app = express();
 
 //Apply Middlewares
-app.use(express.json({ limit: "5mb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser());
 app.use(helmet());
 const corsOptions = {
-  origin: process.env.CLIENT_URL,
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      process.env.CLIENT_URL || "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:5173",
+    ];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log("Blocked by CORS:", origin);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   exposedHeaders: ["Set-Cookie"],
@@ -50,7 +63,7 @@ app.get("/", async (req, res) => {
   }
 });
 
-// Routes
+// Routess
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/hotels", hotelRoutes);
@@ -61,6 +74,7 @@ app.use("/api/room-availability", roomAvailabilityRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/amenities", amenityRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 // PayPal
 app.get("/api/v1/config/paypal", (req, res) => {

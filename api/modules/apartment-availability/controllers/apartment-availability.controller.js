@@ -217,3 +217,37 @@ export const deleteApartmentAvailability = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @desc    Get global apartment availability statistics
+ * @route   GET /api/apartment-availability/stats
+ * @access  Admin
+ */
+export const getGlobalApartmentAvailabilityStats = async (req, res, next) => {
+  try {
+    const [totalRecords, availableRecords, unavailableRecords] = await Promise.all([
+      prisma.apartmentAvailability.count(),
+      prisma.apartmentAvailability.count({ where: { isAvailable: true } }),
+      prisma.apartmentAvailability.count({ where: { isAvailable: false } }),
+    ]);
+
+    const availablePercentage = totalRecords > 0
+      ? (availableRecords / totalRecords) * 100
+      : 0;
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          totalRecords,
+          availableRecords,
+          unavailableRecords,
+          availablePercentage: parseFloat(availablePercentage.toFixed(2)),
+        },
+        "Global apartment availability statistics fetched successfully"
+      )
+    );
+  } catch (error) {
+    next(error);
+  }
+};

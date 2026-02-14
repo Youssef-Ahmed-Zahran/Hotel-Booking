@@ -4,8 +4,9 @@ import {
   getUserById,
   updateUser,
   deleteUser,
-  getCurrentUser,
   changePassword,
+  getCurrentUser,
+  getGlobalUserStats,
 } from "../controllers/user.controller.js";
 import {
   verifyToken,
@@ -22,6 +23,7 @@ router.get("/:id", verifyToken, getUserById);
 router.put("/:id", verifyTokenAndAuthorization, updateUser);
 
 // Admin routes
+router.get("/stats", verifyTokenAndAdmin, getGlobalUserStats);
 router.get("/", verifyTokenAndAdmin, getAllUsers);
 router.delete("/:id", verifyTokenAndAdmin, deleteUser);
 

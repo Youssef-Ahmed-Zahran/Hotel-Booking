@@ -93,7 +93,7 @@ model Hotel {
   country     String
   postalCode  String? @map("postal_code")
   phoneNumber String? @map("phone_number")
-  imageUrl    String? @map("image_url")
+  images      String[] @map("images")
   rating      Decimal @default(1) @db.Decimal(3, 2)
   isActive    Boolean @default(true) @map("is_active")
   isFeatured  Boolean @default(false) @map("is_featured")
@@ -108,6 +108,7 @@ model Hotel {
   bookings   Booking[]
   reviews    Review[]
 
+  @@index([name])
   @@map("hotels")
 }
 
@@ -160,6 +161,7 @@ model Apartment {
   availability      ApartmentAvailability[]
   reviews           Review[]
 
+  @@index([name])
   @@map("apartments")
 }
 
@@ -193,6 +195,7 @@ model Room {
   availability RoomAvailability[]
   reviews      Review[]
 
+  @@index([roomNumber])
   @@map("rooms")
 }
 

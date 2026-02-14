@@ -3,8 +3,6 @@ import {
   uploadMultipleToCloudinary,
   deleteMultipleFromCloudinary,
 } from "../../../utils/cloudinaryUpload.js";
-
-// Import generic handlers
 import { ApiError } from "../../../utils/ApiError.js";
 import { ApiResponse } from "../../../utils/ApiResponse.js";
 
@@ -32,17 +30,25 @@ export const createApartment = async (req, res, next) => {
     } = req.body;
 
     // Validate required fields
-    if (
-      !hotelId ||
-      !apartmentNumber ||
-      !name ||
-      !pricePerNight ||
-      !totalCapacity ||
-      !numberOfBedrooms ||
-      !numberOfBathrooms ||
-      !apartmentType
-    ) {
-      throw new ApiError(400, "Please provide all required fields");
+    const requiredFields = [
+      { name: "hotelId", value: hotelId },
+      { name: "apartmentNumber", value: apartmentNumber },
+      { name: "name", value: name },
+      { name: "pricePerNight", value: pricePerNight },
+      { name: "totalCapacity", value: totalCapacity },
+      { name: "numberOfBedrooms", value: numberOfBedrooms },
+      { name: "numberOfBathrooms", value: numberOfBathrooms },
+      { name: "apartmentType", value: apartmentType },
+    ];
+
+    for (const field of requiredFields) {
+      if (
+        field.value === undefined ||
+        field.value === null ||
+        field.value === ""
+      ) {
+        throw new ApiError(400, `Required field is missing: ${field.name}`);
+      }
     }
 
     // Check if hotel exists
@@ -125,7 +131,7 @@ export const getAllApartments = async (req, res, next) => {
       maxPrice,
       minBedrooms,
       isAvailable,
-      amenities, // Comma separated amenity names
+      search,
     } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -142,6 +148,15 @@ export const getAllApartments = async (req, res, next) => {
     }
     if (minBedrooms) where.numberOfBedrooms = { gte: parseInt(minBedrooms) };
     if (isAvailable !== undefined) where.isAvailable = isAvailable === "true";
+
+    // Handle search query
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+        { apartmentNumber: { contains: search, mode: "insensitive" } },
+      ];
+    }
 
     // Get apartments with pagination
     const [apartments, total] = await Promise.all([
@@ -171,11 +186,21 @@ export const getAllApartments = async (req, res, next) => {
       prisma.apartment.count({ where }),
     ]);
 
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(200, apartments, "Apartments fetched successfully")
-      );
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          apartments,
+          pagination: {
+            total,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages: Math.ceil(total / parseInt(limit)),
+          },
+        },
+        "Apartments fetched successfully"
+      )
+    );
   } catch (error) {
     next(error);
   }
@@ -213,7 +238,9 @@ export const getApartmentById = async (req, res, next) => {
     }
 
     // Aggregate all amenities from rooms that belong to this apartment
-    const amenitiesFromRooms = apartment.rooms.flatMap(room => room.amenities);
+    const amenitiesFromRooms = apartment.rooms.flatMap(
+      (room) => room.amenities
+    );
 
     // Add the aggregated amenities to the apartment object
     const apartmentWithAmenities = {
@@ -223,7 +250,13 @@ export const getApartmentById = async (req, res, next) => {
 
     return res
       .status(200)
-      .json(new ApiResponse(200, apartmentWithAmenities, "Apartment fetched successfully"));
+      .json(
+        new ApiResponse(
+          200,
+          apartmentWithAmenities,
+          "Apartment fetched successfully"
+        )
+      );
   } catch (error) {
     next(error);
   }
@@ -269,17 +302,37 @@ export const updateApartment = async (req, res, next) => {
     }
 
     // Handle images update
-    if (images && images.length > 0) {
-      // Delete old images if they exist
-      if (existingApartment.images && existingApartment.images.length > 0) {
-        await deleteMultipleFromCloudinary(existingApartment.images);
+    if (images && Array.isArray(images)) {
+      const existingUrls = existingApartment.images || [];
+
+      // Identify images to keep (already URLs)
+      const urlsToKeep = images.filter(
+        (img) => typeof img === "string" && img.startsWith("http")
+      );
+
+      // Identify images to delete (not in the new list)
+      const urlsToDelete = existingUrls.filter(
+        (url) => !urlsToKeep.includes(url)
+      );
+
+      // Identify new images to upload (Base64 strings)
+      const base64ToUpload = images.filter(
+        (img) => typeof img === "string" && img.startsWith("data:image")
+      );
+
+      if (urlsToDelete.length > 0) {
+        await deleteMultipleFromCloudinary(urlsToDelete);
       }
 
-      // Upload new images
-      updateData.images = await uploadMultipleToCloudinary(
-        images,
-        "apartments"
-      );
+      let uploadedNewImages = [];
+      if (base64ToUpload.length > 0) {
+        uploadedNewImages = await uploadMultipleToCloudinary(
+          base64ToUpload,
+          "apartments"
+        );
+      }
+
+      updateData.images = [...urlsToKeep, ...uploadedNewImages];
     }
 
     // Update apartment
@@ -477,6 +530,55 @@ export const getApartmentsByHotel = async (req, res, next) => {
       .json(
         new ApiResponse(200, apartments, "Apartments fetched successfully")
       );
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get global apartment statistics
+ * @route   GET /api/apartments/stats
+ * @access  Admin
+ */
+export const getGlobalApartmentStats = async (req, res, next) => {
+  try {
+    const [
+      totalApartments,
+      availableApartments,
+      unavailableApartments,
+      averagePrice,
+      apartmentsByType,
+    ] = await Promise.all([
+      prisma.apartment.count(),
+      prisma.apartment.count({ where: { isAvailable: true } }),
+      prisma.apartment.count({ where: { isAvailable: false } }),
+      prisma.apartment.aggregate({
+        _avg: { pricePerNight: true },
+      }),
+      prisma.apartment.groupBy({
+        by: ["apartmentType"],
+        _count: {
+          _all: true,
+        },
+      }),
+    ]);
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          totalApartments,
+          availableApartments,
+          unavailableApartments,
+          averagePrice: averagePrice._avg.pricePerNight || 0,
+          apartmentsByType: apartmentsByType.map((item) => ({
+            type: item.apartmentType,
+            count: item._count._all,
+          })),
+        },
+        "Global apartment statistics fetched successfully"
+      )
+    );
   } catch (error) {
     next(error);
   }

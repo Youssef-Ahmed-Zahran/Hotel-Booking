@@ -1,5 +1,7 @@
 import prisma from "../../../config/db.js";
 import bcrypt from "bcryptjs";
+import { getCurrentUser } from "../../auth/controllers/auth.controller.js";
+export { getCurrentUser };
 
 // Import generic handlers
 import { ApiError } from "../../../utils/ApiError.js";
@@ -12,7 +14,7 @@ import { ApiResponse } from "../../../utils/ApiResponse.js";
  */
 export const getAllUsers = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, role } = req.query;
+    const { page = 1, limit = 10, role, search } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const take = parseInt(limit);
@@ -20,6 +22,15 @@ export const getAllUsers = async (req, res, next) => {
     // Build filter object
     const where = {};
     if (role) where.role = role;
+
+    if (search) {
+      where.OR = [
+        { username: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
+        { firstName: { contains: search, mode: "insensitive" } },
+        { lastName: { contains: search, mode: "insensitive" } },
+      ];
+    }
 
     const [users, total] = await Promise.all([
       prisma.user.findMany({
@@ -119,8 +130,15 @@ export const getUserById = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, phoneNumber, profileImageUrl, password } =
-      req.body;
+    const {
+      firstName,
+      lastName,
+      phoneNumber,
+      profileImageUrl,
+      password,
+      username,
+      email,
+    } = req.body;
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
@@ -131,10 +149,25 @@ export const updateUser = async (req, res, next) => {
       throw new ApiError(404, "User not found");
     }
 
+    // Check if new email/username is already taken by another user
+    if (email && email !== existingUser.email) {
+      const emailExists = await prisma.user.findUnique({ where: { email } });
+      if (emailExists) throw new ApiError(400, "Email already in use");
+    }
+
+    if (username && username !== existingUser.username) {
+      const usernameExists = await prisma.user.findUnique({
+        where: { username },
+      });
+      if (usernameExists) throw new ApiError(400, "Username already taken");
+    }
+
     const updateData = {};
     if (firstName !== undefined) updateData.firstName = firstName;
     if (lastName !== undefined) updateData.lastName = lastName;
     if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
+    if (username !== undefined) updateData.username = username;
+    if (email !== undefined) updateData.email = email;
     if (profileImageUrl !== undefined)
       updateData.profileImageUrl = profileImageUrl;
 
@@ -159,9 +192,9 @@ export const updateUser = async (req, res, next) => {
       },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, user, "User updated successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, "User updated successfully"));
   } catch (error) {
     next(error);
   }
@@ -190,42 +223,6 @@ export const deleteUser = async (req, res, next) => {
 
     return res.status(200).json(
       new ApiResponse(200, null, "User deleted successfully")
-    );
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * @desc    Get current user profile
- * @route   GET /api/users/me
- * @access  User
- */
-export const getCurrentUser = async (req, res, next) => {
-  try {
-    const userId = req.user.id;
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        phoneNumber: true,
-        profileImageUrl: true,
-        role: true,
-        createdDate: true,
-        lastModifiedDate: true,
-      },
-    });
-
-    if (!user) {
-      throw new ApiError(404, "User not found");
-    }
-
-    return res.status(200).json(
-      new ApiResponse(200, user, "User fetched successfully")
     );
   } catch (error) {
     next(error);
@@ -277,6 +274,52 @@ export const changePassword = async (req, res, next) => {
 
     return res.status(200).json(
       new ApiResponse(200, null, "Password changed successfully")
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get global user statistics
+ * @route   GET /api/users/stats
+ * @access  Admin
+ */
+export const getGlobalUserStats = async (req, res, next) => {
+  try {
+    const lastMonth = new Date();
+    lastMonth.setMonth(lastMonth.getMonth() - 1);
+
+    const [totalUsers, usersByRole, newUsersLastMonth] = await Promise.all([
+      prisma.user.count(),
+      prisma.user.groupBy({
+        by: ["role"],
+        _count: {
+          _all: true,
+        },
+      }),
+      prisma.user.count({
+        where: {
+          createdDate: {
+            gte: lastMonth,
+          },
+        },
+      }),
+    ]);
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          totalUsers,
+          usersByRole: usersByRole.map((item) => ({
+            role: item.role,
+            count: item._count._all,
+          })),
+          newUsersLastMonth,
+        },
+        "Global user statistics fetched successfully"
+      )
     );
   } catch (error) {
     next(error);

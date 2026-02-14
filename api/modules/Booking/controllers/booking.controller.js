@@ -1,6 +1,4 @@
 import prisma from "../../../config/db.js";
-
-// Import generic handlers
 import { ApiError } from "../../../utils/ApiError.js";
 import { ApiResponse } from "../../../utils/ApiResponse.js";
 
@@ -45,7 +43,7 @@ export const createApartmentBooking = async (req, res, next) => {
       throw new ApiError(400, "Check-out date must be after check-in date");
     }
 
-    if (checkIn < new Date()) {
+    if (checkIn < new Date().setHours(0, 0, 0, 0)) {
       throw new ApiError(400, "Check-in date cannot be in the past");
     }
 
@@ -142,6 +140,8 @@ export const createApartmentBooking = async (req, res, next) => {
         paymentAmount,
         paymentCurrency: paymentCurrency || "USD",
         paymentMethod,
+        paymentStatus: req.body.paymentStatus || "PENDING",
+        paymentTransactionId: req.body.paymentTransactionId,
       },
       include: {
         user: {
@@ -303,6 +303,8 @@ export const createRoomBooking = async (req, res, next) => {
         paymentAmount,
         paymentCurrency: paymentCurrency || "USD",
         paymentMethod,
+        paymentStatus: req.body.paymentStatus || "PENDING",
+        paymentTransactionId: req.body.paymentTransactionId,
       },
       include: {
         user: {
@@ -581,42 +583,61 @@ export const cancelBooking = async (req, res, next) => {
 export const getUserBookings = async (req, res, next) => {
   try {
     const { userId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
 
-    const bookings = await prisma.booking.findMany({
-      where: { userId },
-      include: {
-        hotel: {
-          select: {
-            id: true,
-            name: true,
-            city: true,
-            country: true,
-          },
-        },
-        apartment: {
-          select: {
-            id: true,
-            name: true,
-            apartmentNumber: true,
-          },
-        },
-        room: {
-          select: {
-            id: true,
-            roomNumber: true,
-            roomType: true,
-            isAvailable: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const take = parseInt(limit);
 
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(200, bookings, "User bookings fetched successfully")
-      );
+    const [bookings, total] = await Promise.all([
+      prisma.booking.findMany({
+        where: { userId },
+        skip,
+        take,
+        include: {
+          hotel: {
+            select: {
+              id: true,
+              name: true,
+              city: true,
+              country: true,
+            },
+          },
+          apartment: {
+            select: {
+              id: true,
+              name: true,
+              apartmentNumber: true,
+            },
+          },
+          room: {
+            select: {
+              id: true,
+              roomNumber: true,
+              roomType: true,
+              isAvailable: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.booking.count({ where: { userId } }),
+    ]);
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          bookings,
+          pagination: {
+            total,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages: Math.ceil(total / parseInt(limit)),
+          },
+        },
+        "User bookings fetched successfully"
+      )
+    );
   } catch (error) {
     next(error);
   }
@@ -674,6 +695,266 @@ export const getHotelBookings = async (req, res, next) => {
       .json(
         new ApiResponse(200, bookings, "Hotel bookings fetched successfully")
       );
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Check availability for dates
+ * @route   POST /api/bookings/check-availability
+ * @access  Public
+ */
+export const checkAvailability = async (req, res, next) => {
+  try {
+    const { apartmentId, roomId, checkInDate, checkOutDate, bookingType } =
+      req.body;
+
+    if (!checkInDate || !checkOutDate || !bookingType) {
+      throw new ApiError(
+        400,
+        "Please provide check-in, check-out dates and booking type"
+      );
+    }
+
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkOutDate);
+
+    if (checkIn >= checkOut) {
+      throw new ApiError(400, "Check-out date must be after check-in date");
+    }
+
+    if (checkIn < new Date().setHours(0, 0, 0, 0)) {
+      throw new ApiError(400, "Check-in date cannot be in the past");
+    }
+
+    if (bookingType === "APARTMENT") {
+      if (!apartmentId) throw new ApiError(400, "Apartment ID is required");
+
+      const apartment = await prisma.apartment.findUnique({
+        where: { id: apartmentId },
+        include: { rooms: true },
+      });
+
+      if (!apartment) throw new ApiError(404, "Apartment not found");
+      if (!apartment.isAvailable)
+        throw new ApiError(400, "Apartment is not available");
+
+      // Check apartment bookings
+      const apartmentBookings = await prisma.booking.findMany({
+        where: {
+          apartmentId,
+          status: { in: ["PENDING", "CONFIRMED"] },
+          OR: [
+            {
+              AND: [
+                { checkInDate: { lte: checkOut } },
+                { checkOutDate: { gte: checkIn } },
+              ],
+            },
+          ],
+        },
+      });
+
+      if (apartmentBookings.length > 0) {
+        return res
+          .status(200)
+          .json(
+            new ApiResponse(
+              200,
+              {
+                available: false,
+                reason: "Apartment is already booked for these dates",
+              },
+              "Dates unavailable"
+            )
+          );
+      }
+
+      // Check sub-room bookings
+      const roomIds = apartment.rooms.map((room) => room.id);
+      if (roomIds.length > 0) {
+        const roomBookings = await prisma.booking.findMany({
+          where: {
+            roomId: { in: roomIds },
+            status: { in: ["PENDING", "CONFIRMED"] },
+            OR: [
+              {
+                AND: [
+                  { checkInDate: { lte: checkOut } },
+                  { checkOutDate: { gte: checkIn } },
+                ],
+              },
+            ],
+          },
+        });
+
+        if (roomBookings.length > 0) {
+          return res
+            .status(200)
+            .json(
+              new ApiResponse(
+                200,
+                {
+                  available: false,
+                  reason: "One or more rooms in this apartment are booked",
+                },
+                "Dates unavailable"
+              )
+            );
+        }
+      }
+    } else if (bookingType === "ROOM") {
+      if (!roomId) throw new ApiError(400, "Room ID is required");
+
+      const room = await prisma.room.findUnique({
+        where: { id: roomId },
+      });
+
+      if (!room) throw new ApiError(404, "Room not found");
+      if (!room.isAvailable) throw new ApiError(400, "Room is not available");
+      if (!room.bookableIndividually)
+        throw new ApiError(400, "Room cannot be booked individually");
+
+      // Check room bookings
+      const roomBookings = await prisma.booking.findMany({
+        where: {
+          roomId,
+          status: { in: ["PENDING", "CONFIRMED"] },
+          OR: [
+            {
+              AND: [
+                { checkInDate: { lte: checkOut } },
+                { checkOutDate: { gte: checkIn } },
+              ],
+            },
+          ],
+        },
+      });
+
+      if (roomBookings.length > 0) {
+        return res
+          .status(200)
+          .json(
+            new ApiResponse(
+              200,
+              {
+                available: false,
+                reason: "Room is already booked for these dates",
+              },
+              "Dates unavailable"
+            )
+          );
+      }
+
+      // Check parent apartment bookings
+      if (room.apartmentId) {
+        const apartmentBookings = await prisma.booking.findMany({
+          where: {
+            apartmentId: room.apartmentId,
+            status: { in: ["PENDING", "CONFIRMED"] },
+            OR: [
+              {
+                AND: [
+                  { checkInDate: { lte: checkOut } },
+                  { checkOutDate: { gte: checkIn } },
+                ],
+              },
+            ],
+          },
+        });
+
+        if (apartmentBookings.length > 0) {
+          return res
+            .status(200)
+            .json(
+              new ApiResponse(
+                200,
+                {
+                  available: false,
+                  reason: "Parent apartment is booked for these dates",
+                },
+                "Dates unavailable"
+              )
+            );
+        }
+      }
+    } else {
+      throw new ApiError(400, "Invalid booking type");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { available: true }, "Dates are available"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get global booking statistics
+ * @route   GET /api/bookings/stats
+ * @access  Admin
+ */
+export const getGlobalBookingStats = async (req, res, next) => {
+  try {
+    const [
+      totalBookings,
+      bookingsByStatus,
+      totalRevenue,
+      bookingsByType,
+      recentBookings,
+    ] = await Promise.all([
+      prisma.booking.count(),
+      prisma.booking.groupBy({
+        by: ["status"],
+        _count: {
+          _all: true,
+        },
+      }),
+      prisma.booking.aggregate({
+        where: { paymentStatus: "COMPLETED" },
+        _sum: { paymentAmount: true },
+      }),
+      prisma.booking.groupBy({
+        by: ["bookingType"],
+        _count: {
+          _all: true,
+        },
+      }),
+      prisma.booking.findMany({
+        take: 5,
+        orderBy: { createdAt: "desc" },
+        include: {
+          user: {
+            select: { username: true },
+          },
+          hotel: {
+            select: { name: true },
+          },
+        },
+      }),
+    ]);
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          totalBookings,
+          bookingsByStatus: bookingsByStatus.map((item) => ({
+            status: item.status,
+            count: item._count._all,
+          })),
+          totalRevenue: totalRevenue._sum.paymentAmount || 0,
+          bookingsByType: bookingsByType.map((item) => ({
+            type: item.bookingType,
+            count: item._count._all,
+          })),
+          recentBookings,
+        },
+        "Global booking statistics fetched successfully"
+      )
+    );
   } catch (error) {
     next(error);
   }

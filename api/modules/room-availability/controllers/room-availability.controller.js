@@ -1,6 +1,4 @@
 import prisma from "../../../config/db.js";
-
-// Import generic handlers
 import { ApiError } from "../../../utils/ApiError.js";
 import { ApiResponse } from "../../../utils/ApiResponse.js";
 
@@ -55,9 +53,15 @@ export const setRoomAvailability = async (req, res, next) => {
       },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, availability, "Room availability updated successfully")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          availability,
+          "Room availability updated successfully"
+        )
+      );
   } catch (error) {
     next(error);
   }
@@ -93,9 +97,15 @@ export const getRoomAvailability = async (req, res, next) => {
       },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, availability, "Room availability fetched successfully")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          availability,
+          "Room availability fetched successfully"
+        )
+      );
   } catch (error) {
     next(error);
   }
@@ -193,8 +203,44 @@ export const deleteRoomAvailability = async (req, res, next) => {
       where: { id },
     });
 
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, null, "Availability record deleted successfully")
+      );
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get global room availability statistics
+ * @route   GET /api/room-availability/stats
+ * @access  Admin
+ */
+export const getGlobalRoomAvailabilityStats = async (req, res, next) => {
+  try {
+    const [totalRecords, availableRecords, unavailableRecords] =
+      await Promise.all([
+        prisma.roomAvailability.count(),
+        prisma.roomAvailability.count({ where: { isAvailable: true } }),
+        prisma.roomAvailability.count({ where: { isAvailable: false } }),
+      ]);
+
+    const availablePercentage =
+      totalRecords > 0 ? (availableRecords / totalRecords) * 100 : 0;
+
     return res.status(200).json(
-      new ApiResponse(200, null, "Availability record deleted successfully")
+      new ApiResponse(
+        200,
+        {
+          totalRecords,
+          availableRecords,
+          unavailableRecords,
+          availablePercentage: parseFloat(availablePercentage.toFixed(2)),
+        },
+        "Global room availability statistics fetched successfully"
+      )
     );
   } catch (error) {
     next(error);

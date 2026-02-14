@@ -3,8 +3,6 @@ import {
   uploadMultipleToCloudinary,
   deleteMultipleFromCloudinary,
 } from "../../../utils/cloudinaryUpload.js";
-
-// Import generic handlers
 import { ApiError } from "../../../utils/ApiError.js";
 import { ApiResponse } from "../../../utils/ApiResponse.js";
 
@@ -101,8 +99,8 @@ export const createRoom = async (req, res, next) => {
           bookableIndividually !== undefined ? bookableIndividually : true,
         amenities: amenityIds
           ? {
-            connect: amenityIds.map((id) => ({ id })),
-          }
+              connect: amenityIds.map((id) => ({ id })),
+            }
           : undefined,
       },
       include: {
@@ -147,7 +145,8 @@ export const getAllRooms = async (req, res, next) => {
       minCapacity,
       isAvailable,
       bookableIndividually,
-      amenities, // Comma separated amenity names
+      amenities,
+      search,
     } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -155,27 +154,56 @@ export const getAllRooms = async (req, res, next) => {
 
     // Build filter object
     const where = {};
-    if (hotelId) where.hotelId = hotelId;
-    if (apartmentId) where.apartmentId = apartmentId;
-    if (roomType) where.roomType = roomType;
+
+    // Build base filters
+    const baseFilters = {};
+    if (hotelId) baseFilters.hotelId = hotelId;
+    if (apartmentId) baseFilters.apartmentId = apartmentId;
+    if (roomType) baseFilters.roomType = roomType;
     if (minPrice || maxPrice) {
-      where.pricePerNight = {};
-      if (minPrice) where.pricePerNight.gte = parseFloat(minPrice);
-      if (maxPrice) where.pricePerNight.lte = parseFloat(maxPrice);
+      baseFilters.pricePerNight = {};
+      if (minPrice) baseFilters.pricePerNight.gte = parseFloat(minPrice);
+      if (maxPrice) baseFilters.pricePerNight.lte = parseFloat(maxPrice);
     }
-    if (minCapacity) where.capacity = { gte: parseInt(minCapacity) };
-    if (isAvailable !== undefined) where.isAvailable = isAvailable === "true";
+    if (minCapacity) baseFilters.capacity = { gte: parseInt(minCapacity) };
+    if (isAvailable !== undefined)
+      baseFilters.isAvailable = isAvailable === "true";
     if (bookableIndividually !== undefined)
-      where.bookableIndividually = bookableIndividually === "true";
+      baseFilters.bookableIndividually = bookableIndividually === "true";
 
     // Filter by amenities
     if (amenities) {
       const amenityNames = amenities.split(",");
-      where.amenities = {
+      baseFilters.amenities = {
         some: {
           name: { in: amenityNames },
         },
       };
+    }
+
+    // Implement search logic
+    if (search) {
+      where.AND = [
+        baseFilters,
+        {
+          OR: [
+            { roomNumber: { contains: search, mode: "insensitive" } },
+            {
+              hotel: {
+                name: { contains: search, mode: "insensitive" },
+              },
+            },
+            {
+              apartment: {
+                name: { contains: search, mode: "insensitive" },
+              },
+            },
+          ],
+        },
+      ];
+    } else {
+      // No search, just apply base filters
+      Object.assign(where, baseFilters);
     }
 
     // Get rooms with pagination
@@ -245,11 +273,7 @@ export const getRoomById = async (req, res, next) => {
       where: { id },
       include: {
         hotel: true,
-        apartment: {
-          include: {
-            amenities: true,
-          },
-        },
+        apartment: true,
         amenities: true,
         _count: {
           select: {
@@ -309,14 +333,37 @@ export const updateRoom = async (req, res, next) => {
     }
 
     // Handle images update
-    if (images && images.length > 0) {
-      // Delete old images if they exist
-      if (existingRoom.images && existingRoom.images.length > 0) {
-        await deleteMultipleFromCloudinary(existingRoom.images);
+    if (images && Array.isArray(images)) {
+      const existingUrls = existingRoom.images || [];
+
+      // Identify images to keep (already URLs)
+      const urlsToKeep = images.filter(
+        (img) => typeof img === "string" && img.startsWith("http")
+      );
+
+      // Identify images to delete (not in the new list)
+      const urlsToDelete = existingUrls.filter(
+        (url) => !urlsToKeep.includes(url)
+      );
+
+      // Identify new images to upload (Base64 strings)
+      const base64ToUpload = images.filter(
+        (img) => typeof img === "string" && img.startsWith("data:image")
+      );
+
+      if (urlsToDelete.length > 0) {
+        await deleteMultipleFromCloudinary(urlsToDelete);
       }
 
-      // Upload new images
-      updateData.images = await uploadMultipleToCloudinary(images, "rooms");
+      let uploadedNewImages = [];
+      if (base64ToUpload.length > 0) {
+        uploadedNewImages = await uploadMultipleToCloudinary(
+          base64ToUpload,
+          "rooms"
+        );
+      }
+
+      updateData.images = [...urlsToKeep, ...uploadedNewImages];
     }
 
     // Handle amenities update
@@ -447,7 +494,8 @@ export const checkRoomAvailability = async (req, res, next) => {
           200,
           {
             available: false,
-            message: "Room is not available for the selected dates (Manually blocked)",
+            message:
+              "Room is not available for the selected dates (Manually blocked)",
             conflictingBookings: 0,
           },
           "Room is not available for the selected dates"
@@ -505,8 +553,8 @@ export const checkRoomAvailability = async (req, res, next) => {
           message: isAvailable
             ? "Room is available for the selected dates"
             : apartmentBookings.length > 0
-              ? "Room is not available because the entire apartment is booked"
-              : "Room is not available for the selected dates",
+            ? "Room is not available because the entire apartment is booked"
+            : "Room is not available for the selected dates",
           conflictingBookings:
             overlappingRoomBookings.length + apartmentBookings.length,
         },
@@ -598,6 +646,55 @@ export const getRoomsByHotel = async (req, res, next) => {
     return res
       .status(200)
       .json(new ApiResponse(200, rooms, "Rooms fetched successfully"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get global room statistics
+ * @route   GET /api/rooms/stats
+ * @access  Admin
+ */
+export const getGlobalRoomStats = async (req, res, next) => {
+  try {
+    const [
+      totalRooms,
+      availableRooms,
+      unavailableRooms,
+      averagePrice,
+      roomsByType,
+    ] = await Promise.all([
+      prisma.room.count(),
+      prisma.room.count({ where: { isAvailable: true } }),
+      prisma.room.count({ where: { isAvailable: false } }),
+      prisma.room.aggregate({
+        _avg: { pricePerNight: true },
+      }),
+      prisma.room.groupBy({
+        by: ["roomType"],
+        _count: {
+          _all: true,
+        },
+      }),
+    ]);
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          totalRooms,
+          availableRooms,
+          unavailableRooms,
+          averagePrice: averagePrice._avg.pricePerNight || 0,
+          roomsByType: roomsByType.map((item) => ({
+            type: item.roomType,
+            count: item._count._all,
+          })),
+        },
+        "Global room statistics fetched successfully"
+      )
+    );
   } catch (error) {
     next(error);
   }

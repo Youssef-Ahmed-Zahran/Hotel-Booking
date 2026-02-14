@@ -8,6 +8,8 @@ import {
   cancelBooking,
   getUserBookings,
   getHotelBookings,
+  checkAvailability,
+  getGlobalBookingStats,
 } from "../controllers/booking.controller.js";
 import {
   verifyTokenAndAdmin,
@@ -19,8 +21,10 @@ const router = express.Router();
 // Booking creation routes
 router.post("/apartment", createApartmentBooking);
 router.post("/room", createRoomBooking);
+router.post("/check-availability", checkAvailability);
 
 // Booking management routes
+router.get("/stats", verifyTokenAndAdmin, getGlobalBookingStats);
 router.get("/", verifyTokenAndAuthorization, getAllBookings);
 router.get("/:id", verifyTokenAndAuthorization, getBookingById);
 router.patch("/:id/status", verifyTokenAndAdmin, updateBookingStatus);

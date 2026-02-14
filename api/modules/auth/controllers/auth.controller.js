@@ -1,8 +1,6 @@
 import prisma from "../../../config/db.js";
 import bcrypt from "bcryptjs";
 import generateToken from "../../../utils/createToken.js";
-
-// Import generic handlers
 import { ApiError } from "../../../utils/ApiError.js";
 import { ApiResponse } from "../../../utils/ApiResponse.js";
 
@@ -142,6 +140,42 @@ export const logout = async (req, res, next) => {
     return res
       .status(200)
       .json(new ApiResponse(200, null, "Logout successful"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get current user profile
+ * @route   GET /api/users/me
+ * @access  User
+ */
+export const getCurrentUser = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phoneNumber: true,
+        profileImageUrl: true,
+        role: true,
+        createdDate: true,
+        lastModifiedDate: true,
+      },
+    });
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, "User fetched successfully"));
   } catch (error) {
     next(error);
   }

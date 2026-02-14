@@ -8,6 +8,7 @@ import {
   getReviewsByHotel,
 } from "../controllers/review.controller.js";
 import {
+  verifyToken,
   verifyTokenAndAdmin,
   verifyTokenAndAuthorization,
 } from "../../../middlewares/verifyToken.middleware.js";
@@ -20,8 +21,8 @@ router.get("/hotel/:hotelId", getReviewsByHotel);
 router.get("/:id", getReviewById);
 
 // User routes
-router.post("/", verifyTokenAndAdmin, createReview);
-router.put("/:id", verifyTokenAndAdmin, updateReview);
-router.delete("/:id", verifyTokenAndAuthorization, deleteReview);
+router.post("/", verifyToken, createReview);
+router.put("/:id", verifyToken, updateReview);
+router.delete("/:id", verifyToken, deleteReview);
 
 export default router;

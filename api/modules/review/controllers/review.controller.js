@@ -1,6 +1,4 @@
 import prisma from "../../../config/db.js";
-
-// Import generic handlers
 import { ApiError } from "../../../utils/ApiError.js";
 import { ApiResponse } from "../../../utils/ApiResponse.js";
 
@@ -12,7 +10,6 @@ import { ApiResponse } from "../../../utils/ApiResponse.js";
 export const createReview = async (req, res, next) => {
   try {
     const {
-      userId,
       hotelId,
       apartmentId,
       roomId,
@@ -22,9 +19,11 @@ export const createReview = async (req, res, next) => {
       reviewType,
     } = req.body;
 
+    const userId = req.user.id;
+
     // Validate required fields
-    if (!userId || !hotelId || !rating || !reviewType) {
-      throw new ApiError(400, "Please provide userId, hotelId, rating, and reviewType");
+    if (!hotelId || !rating || !reviewType) {
+      throw new ApiError(400, "Please provide hotelId, rating, and reviewType");
     }
 
     // Validate rating
@@ -103,9 +102,9 @@ export const createReview = async (req, res, next) => {
       },
     });
 
-    return res.status(201).json(
-      new ApiResponse(201, review, "Review created successfully")
-    );
+    return res
+      .status(201)
+      .json(new ApiResponse(201, review, "Review created successfully"));
   } catch (error) {
     next(error);
   }
@@ -151,6 +150,7 @@ export const getAllReviews = async (req, res, next) => {
             select: {
               id: true,
               username: true,
+              email: true,
               firstName: true,
               lastName: true,
               profileImageUrl: true,
@@ -218,6 +218,7 @@ export const getReviewById = async (req, res, next) => {
           select: {
             id: true,
             username: true,
+            email: true,
             firstName: true,
             lastName: true,
             profileImageUrl: true,
@@ -234,9 +235,9 @@ export const getReviewById = async (req, res, next) => {
       throw new ApiError(404, "Review not found");
     }
 
-    return res.status(200).json(
-      new ApiResponse(200, review, "Review fetched successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, review, "Review fetched successfully"));
   } catch (error) {
     next(error);
   }
@@ -259,6 +260,14 @@ export const updateReview = async (req, res, next) => {
 
     if (!existingReview) {
       throw new ApiError(404, "Review not found");
+    }
+
+    // Authorization check: Only the owner or an admin can update the review
+    if (existingReview.userId !== req.user.id && req.user.role !== "ADMIN") {
+      throw new ApiError(
+        403,
+        "Forbidden - You can only update your own reviews"
+      );
     }
 
     // Validate rating if provided
@@ -286,9 +295,9 @@ export const updateReview = async (req, res, next) => {
       },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, review, "Review updated successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, review, "Review updated successfully"));
   } catch (error) {
     next(error);
   }
@@ -311,13 +320,21 @@ export const deleteReview = async (req, res, next) => {
       throw new ApiError(404, "Review not found");
     }
 
+    // Authorization check: Only the owner or an admin can delete the review
+    if (review.userId !== req.user.id && req.user.role !== "ADMIN") {
+      throw new ApiError(
+        403,
+        "Forbidden - You can only delete your own reviews"
+      );
+    }
+
     await prisma.review.delete({
       where: { id },
     });
 
-    return res.status(200).json(
-      new ApiResponse(200, null, "Review deleted successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, "Review deleted successfully"));
   } catch (error) {
     next(error);
   }
@@ -352,7 +369,7 @@ export const getReviewsByHotel = async (req, res, next) => {
     const avgRating =
       reviews.length > 0
         ? reviews.reduce((sum, review) => sum + review.rating, 0) /
-        reviews.length
+          reviews.length
         : 0;
 
     return res.status(200).json(

@@ -1,7 +1,7 @@
 import prisma from "../../../config/db.js";
 import {
-  uploadToCloudinary,
-  deleteFromCloudinary,
+  uploadMultipleToCloudinary,
+  deleteMultipleFromCloudinary,
 } from "../../../utils/cloudinaryUpload.js";
 
 // Import generic handlers
@@ -24,7 +24,7 @@ export const createHotel = async (req, res, next) => {
       country,
       postalCode,
       phoneNumber,
-      image,
+      images,
       rating,
       isFeatured,
     } = req.body;
@@ -46,10 +46,10 @@ export const createHotel = async (req, res, next) => {
       throw new ApiError(400, "Hotel with this email already exists");
     }
 
-    // Upload image to Cloudinary if provided
-    let imageUrl = null;
-    if (image) {
-      imageUrl = await uploadToCloudinary(image, "hotels");
+    // Upload images to Cloudinary if provided
+    let imageUrls = [];
+    if (images && Array.isArray(images) && images.length > 0) {
+      imageUrls = await uploadMultipleToCloudinary(images, "hotels");
     }
 
     // Create hotel
@@ -63,7 +63,7 @@ export const createHotel = async (req, res, next) => {
         country,
         postalCode,
         phoneNumber,
-        imageUrl,
+        images: imageUrls,
         rating: rating || 1,
         isFeatured: isFeatured || false,
       },
@@ -122,6 +122,7 @@ export const getAllHotels = async (req, res, next) => {
       minRating,
       isActive,
       amenities, // Comma separated amenity names
+      search,
     } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -134,33 +135,39 @@ export const getAllHotels = async (req, res, next) => {
     if (minRating) where.rating = { gte: parseFloat(minRating) };
     if (isActive !== undefined) where.isActive = isActive === "true";
 
-    // Filter by amenities (Hotels having ANY room or apartment with matching amenities)
+    const conditions = [];
+
+    // Filter by search (name, description, city, country, address)
+    if (search) {
+      conditions.push({
+        OR: [
+          { name: { contains: search, mode: "insensitive" } },
+          { description: { contains: search, mode: "insensitive" } },
+          { city: { contains: search, mode: "insensitive" } },
+          { country: { contains: search, mode: "insensitive" } },
+          { address: { contains: search, mode: "insensitive" } },
+        ],
+      });
+    }
+
+    // Filter by amenities (Hotels having ANY room with matching amenities)
     if (amenities) {
       const amenityNames = amenities.split(",");
-      where.OR = [
-        {
-          rooms: {
-            some: {
-              amenities: {
-                some: {
-                  name: { in: amenityNames },
-                },
+      conditions.push({
+        rooms: {
+          some: {
+            amenities: {
+              some: {
+                name: { in: amenityNames },
               },
             },
           },
         },
-        {
-          apartments: {
-            some: {
-              amenities: {
-                some: {
-                  name: { in: amenityNames },
-                },
-              },
-            },
-          },
-        },
-      ];
+      });
+    }
+
+    if (conditions.length > 0) {
+      where.AND = conditions;
     }
 
     // Get hotels with pagination
@@ -259,7 +266,7 @@ export const getHotelById = async (req, res, next) => {
 export const updateHotel = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { image, isFeatured, ...updateData } = req.body;
+    const { images, isFeatured, ...updateData } = req.body;
 
     // Check if hotel exists
     const existingHotel = await prisma.hotel.findUnique({
@@ -281,15 +288,29 @@ export const updateHotel = async (req, res, next) => {
       }
     }
 
-    // Handle image update
-    if (image) {
-      // Delete old image if it exists
-      if (existingHotel.imageUrl) {
-        await deleteFromCloudinary(existingHotel.imageUrl);
+    // Handle images update
+    if (images && Array.isArray(images)) {
+      const existingUrls = existingHotel.images || [];
+
+      // Identify images to keep (already URLs)
+      const urlsToKeep = images.filter((img) => typeof img === "string" && img.startsWith("http"));
+
+      // Identify images to delete (not in the new list)
+      const urlsToDelete = existingUrls.filter((url) => !urlsToKeep.includes(url));
+
+      // Identify new images to upload (Base64 strings)
+      const base64ToUpload = images.filter((img) => typeof img === "string" && img.startsWith("data:image"));
+
+      if (urlsToDelete.length > 0) {
+        await deleteMultipleFromCloudinary(urlsToDelete);
       }
 
-      // Upload new image
-      updateData.imageUrl = await uploadToCloudinary(image, "hotels");
+      let uploadedNewImages = [];
+      if (base64ToUpload.length > 0) {
+        uploadedNewImages = await uploadMultipleToCloudinary(base64ToUpload, "hotels");
+      }
+
+      updateData.images = [...urlsToKeep, ...uploadedNewImages];
     }
 
     if (isFeatured !== undefined) {
@@ -328,9 +349,9 @@ export const deleteHotel = async (req, res, next) => {
       throw new ApiError(404, "Hotel not found");
     }
 
-    // Delete image from Cloudinary if it exists
-    if (hotel.imageUrl) {
-      await deleteFromCloudinary(hotel.imageUrl);
+    // Delete images from Cloudinary if they exist
+    if (hotel.images && hotel.images.length > 0) {
+      await deleteMultipleFromCloudinary(hotel.images);
     }
 
     // Delete hotel (cascade will handle apartments, rooms, bookings)
@@ -401,6 +422,47 @@ export const getHotelStats = async (req, res, next) => {
           averageRating: averageRating._avg.rating || 0,
         },
         "Hotel statistics fetched successfully"
+      )
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get global hotel statistics
+ * @route   GET /api/hotels/stats
+ * @access  Admin
+ */
+export const getGlobalHotelStats = async (req, res, next) => {
+  try {
+    const [
+      totalHotels,
+      activeHotels,
+      inactiveHotels,
+      featuredHotels,
+      averageRating,
+    ] = await Promise.all([
+      prisma.hotel.count(),
+      prisma.hotel.count({ where: { isActive: true } }),
+      prisma.hotel.count({ where: { isActive: false } }),
+      prisma.hotel.count({ where: { isFeatured: true } }),
+      prisma.hotel.aggregate({
+        _avg: { rating: true },
+      }),
+    ]);
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          totalHotels,
+          activeHotels,
+          inactiveHotels,
+          featuredHotels,
+          averageRating: averageRating._avg.rating || 0,
+        },
+        "Global hotel statistics fetched successfully"
       )
     );
   } catch (error) {

@@ -8,6 +8,7 @@ import {
   checkRoomAvailability,
   getRoomsByApartment,
   getRoomsByHotel,
+  getGlobalRoomStats,
 } from "../controllers/room.controller.js";
 import { verifyTokenAndAdmin } from "../../../middlewares/verifyToken.middleware.js";
 
@@ -21,6 +22,7 @@ router.get("/apartment/:apartmentId", getRoomsByApartment);
 router.get("/hotel/:hotelId", getRoomsByHotel);
 
 // Admin routes
+router.get("/stats", verifyTokenAndAdmin, getGlobalRoomStats);
 router.post("/", verifyTokenAndAdmin, createRoom);
 router.put("/:id", verifyTokenAndAdmin, updateRoom);
 router.delete("/:id", verifyTokenAndAdmin, deleteRoom);
