@@ -16,6 +16,8 @@ import Register from "./features/auth/pages/register/Register";
 import Home from "./features/home/pages/Home";
 import Hotels from "./features/hotels/pages/hotels/Hotels";
 import HotelDetails from "./features/hotel-details/pages/hotel-details/HotelDetails";
+import ApartmentDetails from "./features/apartment-details/pages/apartment-details/ApartmentDetails";
+import RoomDetails from "./features/room-details/pages/room-details/RoomDetails";
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/hotels" element={<Hotels />} />
               <Route path="/hotels/:id" element={<HotelDetails />} />
+              <Route path="/apartments/:id" element={<ApartmentDetails />} />
+              <Route path="/rooms/:id" element={<RoomDetails />} />
 
               {/* Auth routes */}
               <Route element={<AuthRoute />}>
