@@ -20,6 +20,7 @@ import ApartmentDetails from "./features/apartment-details/pages/apartment-detai
 import RoomDetails from "./features/room-details/pages/room-details/RoomDetails";
 import MyBookings from "./features/my-bookings/pages/my-bookings/MyBookings";
 import CheckoutBooking from "./features/checkout-booking/pages/checkout-booking/CheckoutBooking";
+import Profile from "./features/profile/pages/profile/Profile";
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
               <Route element={<PrivateRoute />}>
                 <Route path="/my-bookings" element={<MyBookings />} />
                 <Route path="/checkout" element={<CheckoutBooking />} />
+                <Route path="/profile" element={<Profile />} />
               </Route>
 
               {/* Admin routes */}

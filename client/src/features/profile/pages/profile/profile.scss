@@ -1,0 +1,207 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.profile-page {
+  padding: $spacing-12 $spacing-4;
+  background-color: $bg-secondary;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  justify-content: center;
+  @include fade-in(400ms);
+
+  .profile-container {
+    width: 100%;
+    max-width: 800px;
+    background: $bg-primary;
+    padding: $spacing-12;
+    border-radius: $radius-3xl;
+    box-shadow: $shadow-xl;
+    border: 1px solid $neutral-100;
+
+    h1 {
+      @include heading-1;
+      margin-bottom: $spacing-12;
+      color: $neutral-900;
+      font-size: $text-4xl;
+      letter-spacing: -0.03em;
+      display: inline-block;
+      position: relative;
+
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: $primary-500;
+        border-radius: $radius-full;
+      }
+    }
+
+    .profile-section {
+      margin-bottom: $spacing-12;
+
+      h2 {
+        font-size: $text-xl;
+        font-weight: $font-bold;
+        margin-bottom: $spacing-8;
+        color: $neutral-800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: $spacing-3;
+
+        &::after {
+          content: "";
+          flex: 1;
+          height: 1px;
+          background: $neutral-100;
+        }
+      }
+
+      .alert {
+        padding: $spacing-4 $spacing-6;
+        border-radius: $radius-xl;
+        margin-bottom: $spacing-8;
+        font-size: $text-sm;
+        font-weight: $font-bold;
+        display: flex;
+        align-items: center;
+        gap: $spacing-3;
+        animation: slideDown 0.3s ease-out;
+
+        &.alert-success {
+          background-color: $primary-50;
+          color: $primary-700;
+          border: 1px solid $primary-100;
+        }
+
+        &.alert-error {
+          background-color: #fef2f2;
+          color: #b91c1c;
+          border: 1px solid #fee2e2;
+        }
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-6;
+
+        .form-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: $spacing-6;
+
+          @include sm {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-2;
+
+          label {
+            font-weight: $font-bold;
+            color: $neutral-700;
+            font-size: $text-sm;
+            letter-spacing: 0.02em;
+          }
+
+          input {
+            padding: $spacing-3.5 $spacing-5;
+            border: 2px solid $neutral-100;
+            border-radius: $radius-xl;
+            font-size: $text-base;
+            font-weight: $font-medium;
+            transition: all $transition-base;
+            background-color: $bg-primary;
+            color: $neutral-900;
+
+            &::placeholder {
+              color: $neutral-400;
+            }
+
+            &:focus {
+              outline: none;
+              border-color: $primary-400;
+              box-shadow: 0 0 0 4px rgba($primary-500, 0.08);
+              background-color: white;
+            }
+
+            &.disabled-input {
+              background-color: $bg-tertiary;
+              color: $neutral-400;
+              cursor: not-allowed;
+              border-color: $neutral-100;
+            }
+          }
+        }
+
+        button {
+          align-self: flex-start;
+          padding: $spacing-3.5 $spacing-10;
+          font-weight: $font-bold;
+          font-size: $text-sm;
+          cursor: pointer;
+          transition: all $transition-base;
+          border-radius: $radius-full;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+
+          &:active {
+            transform: translateY(2px);
+          }
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+
+          &.btn-primary {
+            @include button-primary;
+          }
+
+          &.btn-secondary {
+            @include button-secondary;
+          }
+        }
+      }
+    }
+
+    .divider {
+      border: 0;
+      border-top: 1px solid $neutral-100;
+      margin: $spacing-12 0;
+    }
+  }
+
+  .profile-loading,
+  .profile-error {
+    @include flex-center;
+    height: 60vh;
+    font-size: $text-xl;
+    font-weight: $font-bold;
+    color: $neutral-600;
+  }
+
+  .profile-error {
+    color: #ef4444;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
