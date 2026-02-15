@@ -1,0 +1,374 @@
+@use "../../../../../styles/variables" as *;
+@use "../../../../../styles/mixins" as *;
+
+.users-page-wrapper {
+  @include container;
+  @include section-padding;
+  @include fade-in;
+
+  .users-header-section {
+    @include flex-between;
+    margin-bottom: $spacing-8;
+    flex-wrap: wrap;
+    gap: $spacing-4;
+
+    .header-content {
+      h1 {
+        @include heading-3;
+        display: flex;
+        align-items: center;
+        gap: $spacing-3;
+        color: $neutral-900;
+        margin: 0;
+
+        .icon {
+          color: $primary-600;
+        }
+      }
+
+      p {
+        @include body-small;
+        color: $text-secondary;
+        margin-top: $spacing-1;
+      }
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      max-width: 400px;
+      min-width: 280px;
+
+      .search-icon {
+        position: absolute;
+        left: $spacing-4;
+        top: 50%;
+        transform: translateY(-50%);
+        color: $text-tertiary;
+        font-size: 1.1rem;
+      }
+
+      input {
+        @include input-base;
+        padding-left: $spacing-12;
+        background: $bg-primary;
+        border-color: transparent;
+        box-shadow: $shadow-sm;
+
+        &:focus {
+          border-color: $primary-300;
+          box-shadow: $shadow-md;
+        }
+      }
+    }
+  }
+
+  .loading-state {
+    @include flex-column-center;
+    padding: $spacing-20;
+    color: $text-secondary;
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid $neutral-100;
+      border-top: 3px solid $primary-600;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: $spacing-4;
+    }
+  }
+
+  .table-card {
+    @include card-base;
+    border: 1px solid $border-light;
+
+    .table-responsive {
+      overflow-x: auto;
+      @include scrollbar-custom;
+    }
+
+    .users-modern-table {
+      width: 100%;
+      border-collapse: collapse;
+
+      th {
+        background: $neutral-50;
+        padding: $spacing-4 $spacing-6;
+        text-align: left;
+        @include body-small;
+        font-weight: $font-semibold;
+        color: $text-secondary;
+        border-bottom: 2px solid $border-light;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      td {
+        padding: $spacing-4 $spacing-6;
+        border-bottom: 1px solid $border-light;
+        vertical-align: middle;
+      }
+
+      .user-row {
+        @include transition-base;
+
+        &:hover {
+          background: $neutral-50;
+        }
+      }
+
+      .user-info-cell {
+        .user-profile-info {
+          display: flex;
+          align-items: center;
+          gap: $spacing-4;
+
+          .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: $radius-full;
+            object-fit: cover;
+            border: 2px solid $primary-100;
+          }
+
+          .user-avatar-placeholder {
+            width: 48px;
+            height: 48px;
+            border-radius: $radius-full;
+            background: $gradient-primary;
+            color: white;
+            @include flex-center;
+            font-weight: $font-bold;
+            font-size: 1.2rem;
+          }
+
+          .name-stack {
+            @include flex-column;
+
+            .full-name {
+              @include body-base;
+              font-weight: $font-semibold;
+              color: $text-primary;
+            }
+
+            .username {
+              @include body-small;
+              color: $text-tertiary;
+            }
+          }
+        }
+      }
+
+      .contact-stack {
+        @include flex-column;
+        gap: $spacing-1;
+
+        .contact-item {
+          display: flex;
+          align-items: center;
+          gap: $spacing-2;
+          @include body-small;
+          color: $text-secondary;
+
+          .icon {
+            font-size: 0.9rem;
+            color: $text-tertiary;
+          }
+        }
+      }
+
+      .role-tag {
+        display: inline-flex;
+        padding: $spacing-1 $spacing-3;
+        border-radius: $radius-full;
+        @include body-xs;
+        font-weight: $font-bold;
+        text-transform: uppercase;
+
+        &.admin {
+          background: $secondary-50;
+          color: $secondary-700;
+          border: 1px solid $secondary-200;
+        }
+
+        &.user {
+          background: $primary-50;
+          color: $primary-700;
+          border: 1px solid $primary-200;
+        }
+
+        &.guest {
+          background: $neutral-100;
+          color: $neutral-600;
+          border: 1px solid $neutral-200;
+        }
+      }
+
+      .activity-stats {
+        display: flex;
+        gap: $spacing-3;
+
+        .stat-pill {
+          @include flex-center;
+          gap: $spacing-1;
+          padding: $spacing-1 $spacing-2;
+          background: $neutral-100;
+          border-radius: $radius-md;
+          @include body-small;
+          color: $text-secondary;
+
+          .icon {
+            font-size: 0.8rem;
+            color: $text-tertiary;
+          }
+        }
+      }
+
+      .actions-cell {
+        .action-buttons {
+          display: flex;
+          gap: $spacing-2;
+
+          .action-btn {
+            @include flex-center;
+            width: 36px;
+            height: 36px;
+            border-radius: $radius-lg;
+            border: 1px solid $border-light;
+            background: white;
+            cursor: pointer;
+            @include transition-base;
+            font-size: 1.1rem;
+
+            &.edit {
+              color: $info;
+
+              &:hover {
+                background: $info-light;
+                border-color: $info;
+              }
+            }
+
+            &.delete {
+              color: $error;
+
+              &:hover {
+                background: $error-light;
+                border-color: $error;
+              }
+            }
+          }
+        }
+      }
+
+      .empty-state {
+        padding: $spacing-12;
+        text-align: center;
+        color: $text-tertiary;
+
+        .empty-message {
+          @include body-base;
+        }
+      }
+    }
+  }
+
+  .infinite-scroll-trigger {
+    padding: $spacing-6;
+    @include flex-center;
+    border-top: 1px solid $border-light;
+    min-height: 80px;
+    flex-direction: column;
+    gap: $spacing-2;
+
+    .loading-state.mini {
+      padding: 0;
+      @include flex-center;
+      gap: $spacing-3;
+
+      .spinner {
+        width: 24px;
+        height: 24px;
+        border: 2px solid $neutral-200;
+        border-top: 2px solid $primary-600;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      p {
+        @include body-small;
+        margin: 0;
+        color: $text-secondary;
+      }
+    }
+
+    .no-more-users {
+      @include body-small;
+      color: $text-tertiary;
+      font-style: italic;
+    }
+  }
+
+  .user-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: $bg-overlay;
+    backdrop-filter: blur(4px);
+    @include flex-center;
+    z-index: $z-modal;
+    @include fade-in;
+    padding: $spacing-4;
+
+    .user-modal-container {
+      background: $bg-primary;
+      border-radius: $radius-2xl;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: $shadow-2xl;
+      @include slide-up;
+      @include scrollbar-custom;
+
+      .close-modal-btn {
+        position: absolute;
+        top: $spacing-4;
+        right: $spacing-4;
+        background: $neutral-100;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: $radius-full;
+        @include flex-center;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: $text-secondary;
+        @include transition-base;
+        z-index: 10;
+
+        &:hover {
+          background: $error-light;
+          color: $error;
+        }
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@include md {
+  .users-page-wrapper {
+    .users-header-section {
+      .search-box {
+        max-width: 350px;
+      }
+    }
+  }
+}

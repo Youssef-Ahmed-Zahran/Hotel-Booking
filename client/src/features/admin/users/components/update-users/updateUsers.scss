@@ -1,0 +1,245 @@
+@use "../../../../../styles/variables" as *;
+@use "../../../../../styles/mixins" as *;
+
+.update-user-wrapper {
+  padding: $spacing-2;
+
+  .form-header {
+    margin-bottom: $spacing-8;
+    border-bottom: 1px solid $border-light;
+    padding-bottom: $spacing-4;
+
+    .title-area {
+      h2 {
+        @include heading-4;
+        color: $neutral-900;
+        margin: 0;
+      }
+
+      p {
+        @include body-small;
+        color: $text-secondary;
+        margin-top: $spacing-1;
+      }
+    }
+  }
+
+  .error-banner {
+    @include flex-center;
+    gap: $spacing-3;
+    background: $error-light;
+    color: $error;
+    padding: $spacing-3;
+    border-radius: $radius-lg;
+    margin-bottom: $spacing-6;
+    @include body-small;
+    font-weight: $font-medium;
+
+    .icon {
+      font-size: 1.1rem;
+    }
+  }
+
+  .modern-form {
+    .profile-preview-section {
+      display: flex;
+      align-items: center;
+      gap: $spacing-6;
+      margin-bottom: $spacing-8;
+      padding: $spacing-4;
+      background: $neutral-50;
+      border-radius: $radius-xl;
+
+      .preview-container {
+        position: relative;
+        width: 80px;
+        height: 80px;
+
+        .profile-img {
+          width: 100%;
+          height: 100%;
+          border-radius: $radius-full;
+          object-fit: cover;
+          border: 3px solid white;
+          box-shadow: $shadow-md;
+        }
+
+        .profile-placeholder {
+          width: 100%;
+          height: 100%;
+          border-radius: $radius-full;
+          background: $gradient-primary;
+          color: white;
+          @include flex-center;
+          font-size: 2rem;
+          font-weight: $font-bold;
+          box-shadow: $shadow-md;
+        }
+
+        .preview-label {
+          position: absolute;
+          bottom: -5px;
+          right: -5px;
+          background: $bg-primary;
+          padding: 2px 8px;
+          border-radius: $radius-full;
+          @include flex-center;
+          gap: 4px;
+          @include body-xs;
+          color: $text-tertiary;
+          box-shadow: $shadow-sm;
+          border: 1px solid $border-light;
+        }
+      }
+
+      .preview-info {
+        h3 {
+          @include body-large;
+          font-weight: $font-bold;
+          color: $text-primary;
+          margin: 0;
+        }
+
+        p {
+          @include body-small;
+          color: $text-tertiary;
+          margin: 2px 0 $spacing-2;
+        }
+
+        .role-badge {
+          display: inline-block;
+          padding: 2px 10px;
+          border-radius: $radius-full;
+          @include body-xs;
+          font-weight: $font-bold;
+          text-transform: uppercase;
+
+          &.admin {
+            background: $secondary-50;
+            color: $secondary-700;
+          }
+
+          &.user {
+            background: $primary-50;
+            color: $primary-700;
+          }
+        }
+      }
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: $spacing-5;
+
+      .input-group {
+        @include flex-column;
+        gap: $spacing-2;
+
+        &.full-width {
+          grid-column: span 2;
+        }
+
+        label {
+          @include body-xs;
+          font-weight: $font-bold;
+          color: $text-secondary;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .input-wrapper {
+          position: relative;
+          @include flex-center;
+
+          .input-icon {
+            position: absolute;
+            left: $spacing-4;
+            color: $text-tertiary;
+            font-size: 1rem;
+          }
+
+          .at-symbol {
+            position: absolute;
+            left: $spacing-4;
+            color: $text-tertiary;
+            font-weight: $font-bold;
+            font-size: 1rem;
+          }
+
+          input,
+          select {
+            @include input-base;
+            padding-left: $spacing-12;
+            border-width: 1.5px;
+
+            &::placeholder {
+              color: $neutral-300;
+            }
+          }
+
+          select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right $spacing-4 center;
+            background-size: 1.2rem;
+          }
+        }
+      }
+    }
+
+    .form-footer {
+      @include flex-between;
+      margin-top: $spacing-10;
+      padding-top: $spacing-6;
+      border-top: 1px solid $border-light;
+      gap: $spacing-4;
+
+      .btn-cancel {
+        @include button-ghost;
+        color: $text-secondary;
+        flex: 1;
+
+        &:hover {
+          background: $neutral-50;
+          color: $error;
+        }
+      }
+
+      .btn-submit {
+        @include button-primary;
+        flex: 2;
+        gap: $spacing-3;
+
+        .btn-spinner {
+          width: 18px;
+          height: 18px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-top: 2px solid white;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@include sm {
+  .update-user-wrapper {
+    .form-grid {
+      .input-group {
+        &.full-width {
+          grid-column: span 1;
+        }
+      }
+    }
+  }
+}
