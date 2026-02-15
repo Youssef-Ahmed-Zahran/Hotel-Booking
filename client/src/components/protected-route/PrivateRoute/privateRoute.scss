@@ -1,0 +1,6 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.private-route {
+    min-height: 100vh;
+}
