@@ -1,6 +1,17 @@
 import { useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import {
+  Check,
+  CreditCard,
+  User,
+  ShieldCheck,
+  Lock,
+  AlertCircle,
+  Home,
+  Loader2
+} from "lucide-react";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import BookingSummaryCard from "../../components/booking-summary-card/BookingSummaryCard";
 import BookingDetails from "../../components/details/BookingDetails";
 import type { BookingDetails as BookingDetailsType } from "../../components/details/BookingDetails";
@@ -45,8 +56,19 @@ export default function CheckoutBooking() {
     setBookingDetails(details);
   }, []);
 
-  const handlePaymentChange = useCallback((payment: PaymentInfo) => {
-    setPaymentInfo(payment);
+  const handlePaymentChange = useCallback((payment: { method: "card" | "paypal"; cardDetails?: any }) => {
+    const paymentInfo: PaymentInfo = {
+      paymentMethod: payment.method === "card" ? "credit_card" : "paypal",
+      ...(payment.method === "card" && payment.cardDetails
+        ? {
+          cardNumber: payment.cardDetails.cardNumber,
+          cardName: payment.cardDetails.cardHolder,
+          expiryDate: payment.cardDetails.expiryDate,
+          cvv: payment.cardDetails.cvv,
+        }
+        : {}),
+    };
+    setPaymentInfo(paymentInfo);
   }, []);
 
   if (!bookingData) {
@@ -54,18 +76,7 @@ export default function CheckoutBooking() {
       <div className="checkout-booking">
         <div className="checkout-booking__container">
           <div className="checkout-booking__error-page">
-            <svg
-              width="80"
-              height="80"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
+            <AlertCircle className="checkout-booking__error-icon" />
             <h1>No Booking Data Found</h1>
             <p>
               Please start your booking from the accommodation details page.
@@ -74,17 +85,7 @@ export default function CheckoutBooking() {
               className="checkout-booking__btn"
               onClick={() => navigate("/")}
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                <polyline points="9 22 9 12 15 12 15 22" />
-              </svg>
+              <Home className="btn-icon" />
               Go to Home
             </button>
           </div>
@@ -100,7 +101,7 @@ export default function CheckoutBooking() {
   const nights = Math.ceil(
     (new Date(bookingData.checkOutDate).getTime() -
       new Date(bookingData.checkInDate).getTime()) /
-      (1000 * 60 * 60 * 24)
+    (1000 * 60 * 60 * 24)
   );
 
   const createBooking = async (
@@ -285,213 +286,167 @@ export default function CheckoutBooking() {
   const isPaymentComplete = paymentInfo !== null;
 
   return (
-    <div className="checkout-booking">
-      <div className="checkout-booking__container">
-        <h1 className="checkout-booking__title">Complete Your Booking</h1>
+    <PayPalScriptProvider options={{ clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID }}>
+      <div className="checkout-booking">
+        <div className="checkout-booking__container">
+          <div className="checkout-booking__header">
+            <h1 className="checkout-booking__title">Complete Your Booking</h1>
+            <p className="checkout-booking__subtitle">
+              Secure your stay in just a few steps
+            </p>
+          </div>
 
-        {/* Progress Steps */}
-        <div className="checkout-booking__progress">
-          <div
-            className={`checkout-booking__step ${
-              isDetailsComplete
+          {/* Progress Steps */}
+          <div className="checkout-booking__progress">
+            <div
+              className={`checkout-booking__step ${isDetailsComplete
                 ? "checkout-booking__step--complete"
                 : "checkout-booking__step--active"
-            }`}
-          >
-            <div className="checkout-booking__step-icon">
-              {isDetailsComplete ? (
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              ) : (
-                <span>1</span>
-              )}
+                }`}
+            >
+              <div className="checkout-booking__step-icon">
+                {isDetailsComplete ? (
+                  <Check size={20} />
+                ) : (
+                  <User size={20} />
+                )}
+              </div>
+              <div className="checkout-booking__step-content">
+                <span className="checkout-booking__step-title">
+                  Guest Details
+                </span>
+                <span className="checkout-booking__step-desc">
+                  Your information
+                </span>
+              </div>
             </div>
-            <div className="checkout-booking__step-content">
-              <span className="checkout-booking__step-title">
-                Guest Details
-              </span>
-              <span className="checkout-booking__step-desc">
-                Your information
-              </span>
-            </div>
-          </div>
 
-          <div className="checkout-booking__step-divider"></div>
+            <div className="checkout-booking__step-divider"></div>
 
-          <div
-            className={`checkout-booking__step ${
-              isDetailsComplete && isPaymentComplete
+            <div
+              className={`checkout-booking__step ${isDetailsComplete && isPaymentComplete
                 ? "checkout-booking__step--complete"
                 : isDetailsComplete
-                ? "checkout-booking__step--active"
-                : ""
-            }`}
-          >
-            <div className="checkout-booking__step-icon">
-              {isDetailsComplete && isPaymentComplete ? (
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
+                  ? "checkout-booking__step--active"
+                  : ""
+                }`}
+            >
+              <div className="checkout-booking__step-icon">
+                {isDetailsComplete && isPaymentComplete ? (
+                  <Check size={20} />
+                ) : (
+                  <CreditCard size={20} />
+                )}
+              </div>
+              <div className="checkout-booking__step-content">
+                <span className="checkout-booking__step-title">Payment</span>
+                <span className="checkout-booking__step-desc">
+                  Secure checkout
+                </span>
+              </div>
+            </div>
+
+            <div className="checkout-booking__step-divider"></div>
+
+            <div className="checkout-booking__step">
+              <div className="checkout-booking__step-icon">
+                <Check size={20} className="opacity-50" />
+              </div>
+              <div className="checkout-booking__step-content">
+                <span className="checkout-booking__step-title">Confirmation</span>
+                <span className="checkout-booking__step-desc">
+                  Booking complete
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="checkout-booking__content">
+            <div className="checkout-booking__main">
+              <BookingDetails
+                onDetailsChange={handleDetailsChange}
+                initialDetails={{
+                  firstName: user.firstName || "",
+                  lastName: user.lastName || "",
+                  email: user.email || "",
+                  phone: user.phoneNumber || "",
+                }}
+              />
+
+              <Payment
+                onPaymentMethodChange={handlePaymentChange}
+                amount={bookingData.totalAmount}
+                onPayPalApprove={handlePayPalApprove}
+              />
+
+              {/* Security Badges */}
+              <div className="checkout-booking__security">
+                <div className="checkout-booking__security-item">
+                  <ShieldCheck size={18} />
+                  <span>Secure SSL Encrypted</span>
+                </div>
+                <div className="checkout-booking__security-divider"></div>
+                <div className="checkout-booking__security-item">
+                  <Lock size={18} />
+                  <span>Your data is protected</span>
+                </div>
+              </div>
+
+              {error && <div className="checkout-booking__error">{error}</div>}
+
+              {/* Only show main submit button for non-PayPal methods */}
+              {paymentInfo?.paymentMethod !== "paypal" && (
+                <button
+                  className="checkout-booking__submit"
+                  onClick={handleSubmit}
+                  disabled={
+                    isSubmitting ||
+                    !isDetailsComplete ||
+                    !paymentInfo ||
+                    ((paymentInfo.paymentMethod === "credit_card" ||
+                      paymentInfo.paymentMethod === "debit_card") &&
+                      (!paymentInfo.cardNumber ||
+                        paymentInfo.cardNumber.replace(/\s/g, "").length !== 16 ||
+                        !paymentInfo.cardName ||
+                        !paymentInfo.expiryDate ||
+                        paymentInfo.expiryDate.length !== 5 ||
+                        !paymentInfo.cvv ||
+                        paymentInfo.cvv.length < 3))
+                  }
                 >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              ) : (
-                <span>2</span>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <Lock size={18} />
+                      Pay ${bookingData.totalAmount.toFixed(2)}
+                    </>
+                  )}
+                </button>
               )}
             </div>
-            <div className="checkout-booking__step-content">
-              <span className="checkout-booking__step-title">Payment</span>
-              <span className="checkout-booking__step-desc">
-                Secure checkout
-              </span>
-            </div>
-          </div>
 
-          <div className="checkout-booking__step-divider"></div>
-
-          <div className="checkout-booking__step">
-            <div className="checkout-booking__step-icon">
-              <span>3</span>
-            </div>
-            <div className="checkout-booking__step-content">
-              <span className="checkout-booking__step-title">Confirmation</span>
-              <span className="checkout-booking__step-desc">
-                Booking complete
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="checkout-booking__content">
-          <div className="checkout-booking__main">
-            <BookingDetails
-              onDetailsChange={handleDetailsChange}
-              initialDetails={{
-                firstName: user.firstName || "",
-                lastName: user.lastName || "",
-                email: user.email || "",
-                phone: user.phoneNumber || "",
-              }}
-            />
-
-            <Payment
-              onPaymentChange={handlePaymentChange}
-              amount={bookingData.totalAmount}
-              onPayPalApprove={handlePayPalApprove}
-            />
-
-            {/* Security Badges */}
-            <div className="checkout-booking__security">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-              <span>Secure SSL Encrypted Payment</span>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-              <span>Your data is protected</span>
-            </div>
-
-            {error && <div className="checkout-booking__error">{error}</div>}
-
-            {/* Only show main submit button for non-PayPal methods */}
-            {paymentInfo?.paymentMethod !== "paypal" && (
-              <button
-                className="checkout-booking__submit"
-                onClick={handleSubmit}
-                disabled={
-                  isSubmitting ||
-                  !isDetailsComplete ||
-                  !paymentInfo ||
-                  ((paymentInfo.paymentMethod === "credit_card" ||
-                    paymentInfo.paymentMethod === "debit_card") &&
-                    (!paymentInfo.cardNumber ||
-                      paymentInfo.cardNumber.replace(/\s/g, "").length !== 16 ||
-                      !paymentInfo.cardName ||
-                      !paymentInfo.expiryDate ||
-                      paymentInfo.expiryDate.length !== 5 ||
-                      !paymentInfo.cvv ||
-                      paymentInfo.cvv.length < 3))
+            <div className="checkout-booking__sidebar">
+              <BookingSummaryCard
+                accommodationName={
+                  bookingData.bookingType === "APARTMENT"
+                    ? "Luxury Apartment"
+                    : "Deluxe Room"
                 }
-              >
-                {isSubmitting ? (
-                  <>
-                    <svg
-                      className="checkout-booking__spinner"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <circle cx="12" cy="12" r="10" />
-                    </svg>
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    </svg>
-                    Pay ${bookingData.totalAmount.toFixed(2)}
-                  </>
-                )}
-              </button>
-            )}
-          </div>
-
-          <div className="checkout-booking__sidebar">
-            <BookingSummaryCard
-              accommodationName={
-                bookingData.bookingType === "APARTMENT"
-                  ? "Luxury Apartment"
-                  : "Deluxe Room"
-              }
-              accommodationType={bookingData.bookingType}
-              checkInDate={bookingData.checkInDate}
-              checkOutDate={bookingData.checkOutDate}
-              numberOfGuests={bookingData.numberOfGuests}
-              pricePerNight={bookingData.pricePerNight}
-              nights={nights}
-            />
+                accommodationType={bookingData.bookingType}
+                checkInDate={bookingData.checkInDate}
+                checkOutDate={bookingData.checkOutDate}
+                numberOfGuests={bookingData.numberOfGuests}
+                pricePerNight={bookingData.pricePerNight}
+                nights={nights}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </PayPalScriptProvider>
   );
 }

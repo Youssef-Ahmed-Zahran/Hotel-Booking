@@ -7,43 +7,81 @@
   padding: 0;
   gap: 0;
   box-shadow: $shadow-xl;
-  background: $bg-primary;
-  border: 1px solid $neutral-100;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px);
   overflow: hidden;
+  border-radius: $radius-2xl;
+  transition: transform $transition-base, box-shadow $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-2xl;
+  }
 
   &__header {
     display: flex;
     align-items: center;
     gap: $spacing-5;
-    padding: $spacing-8;
+    padding: $spacing-6;
     background: linear-gradient(135deg, $primary-600, $primary-800);
     position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.1), transparent 60%);
+    }
+  }
+
+  &__icon-container {
+    padding: $spacing-3;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    border-radius: $radius-xl;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: $shadow-sm;
   }
 
   &__icon {
-    width: 40px;
-    height: 40px;
-    padding: $spacing-2.5;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(4px);
-    border-radius: $radius-xl;
+    width: 24px;
+    height: 24px;
     color: white;
-    flex-shrink: 0;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    stroke-width: 2.5;
+  }
+
+  &__header-content {
+    @include flex-column;
+    gap: $spacing-1;
+    position: relative;
+    z-index: 1;
   }
 
   &__title {
-    font-size: $text-2xl;
-    font-weight: $font-extrabold;
+    font-size: $text-xl;
+    font-weight: $font-bold;
     margin: 0;
     color: white;
     letter-spacing: -0.02em;
   }
 
+  &__subtitle {
+    font-size: $text-sm;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: $font-medium;
+  }
+
   &__form {
     @include flex-column;
     gap: $spacing-6;
-    padding: $spacing-10;
+    padding: $spacing-8;
   }
 
   &__row {
@@ -62,52 +100,98 @@
   }
 
   &__label {
-    font-size: $text-sm;
+    font-size: $text-xs;
     font-weight: $font-bold;
-    color: $neutral-700;
-    letter-spacing: 0.02em;
+    color: $neutral-500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-left: $spacing-1;
   }
 
   &__required {
-    color: #ef4444;
+    color: $error;
     margin-left: 2px;
   }
 
+  &__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    transition: transform $transition-fast;
+
+    &:focus-within {
+      transform: translateY(-1px);
+    }
+
+    &--textarea {
+      align-items: flex-start;
+    }
+  }
+
+  &__input-icon {
+    position: absolute;
+    left: $spacing-4;
+    color: $neutral-400;
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+    z-index: 2;
+    transition: color $transition-base;
+
+    &--textarea {
+      top: $spacing-4;
+    }
+  }
+
   &__input {
-    padding: $spacing-3.5 $spacing-5;
-    border: 2px solid $neutral-100;
+    width: 100%;
+    padding: $spacing-3 $spacing-5 $spacing-3 $spacing-12;
+    border: 2px solid $neutral-200;
     border-radius: $radius-xl;
     font-family: inherit;
     font-size: $text-base;
     font-weight: $font-medium;
     transition: all $transition-base;
-    background-color: $bg-primary;
+    background-color: white;
     color: $neutral-900;
+    box-shadow: $shadow-sm;
 
     &::placeholder {
       color: $neutral-400;
+      font-weight: $font-normal;
     }
 
     &:focus {
       outline: none;
-      border-color: $primary-400;
-      box-shadow: 0 0 0 4px rgba($primary-500, 0.08);
+      border-color: $primary-500;
+      box-shadow: 0 0 0 4px rgba($primary-500, 0.1);
       background-color: white;
+
+      &+.booking-details__input-icon {
+        color: $primary-500;
+      }
     }
 
     &--error {
-      border-color: #fca5a5;
+      border-color: $error;
       background-color: #fffafb;
 
       &:focus {
-        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08);
+        box-shadow: 0 0 0 4px rgba($error, 0.1);
+        border-color: $error;
       }
     }
   }
 
+  // Focus state for icon when input is focused
+  &__input:focus~&__input-icon {
+    color: $primary-500;
+  }
+
   &__textarea {
-    padding: $spacing-3.5 $spacing-5;
-    border: 2px solid $neutral-100;
+    width: 100%;
+    padding: $spacing-3 $spacing-5 $spacing-3 $spacing-12;
+    border: 2px solid $neutral-200;
     border-radius: $radius-xl;
     font-family: inherit;
     font-size: $text-base;
@@ -115,29 +199,41 @@
     resize: vertical;
     min-height: 120px;
     transition: all $transition-base;
-    background-color: $bg-primary;
+    background-color: white;
     color: $neutral-900;
+    box-shadow: $shadow-sm;
 
     &:focus {
       outline: none;
-      border-color: $primary-400;
-      box-shadow: 0 0 0 4px rgba($primary-500, 0.08);
+      border-color: $primary-500;
+      box-shadow: 0 0 0 4px rgba($primary-500, 0.1);
       background-color: white;
+
+      &+.booking-details__input-icon {
+        color: $primary-500;
+      }
     }
 
     &::placeholder {
       color: $neutral-400;
+      font-weight: $font-normal;
     }
+  }
+
+  // Focus state for icon when textarea is focused
+  &__textarea:focus~&__input-icon {
+    color: $primary-500;
   }
 
   &__error {
     font-size: $text-xs;
-    color: #ef4444;
+    color: $error;
     font-weight: $font-bold;
     display: flex;
     align-items: center;
     gap: $spacing-1;
-    margin-top: 2px;
+    margin-top: 4px;
+    margin-left: $spacing-1;
     animation: slideIn 0.2s ease-out;
   }
 }

@@ -1,223 +1,232 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import "./payment.scss";
+import * as z from "zod";
+import { CreditCard, Wallet, Calendar, Lock, Check } from "lucide-react";
+import { PayPalButtons } from "@paypal/react-paypal-js";
+import "./Payment.scss";
 
-import {
-  paymentSchema,
-  type PaymentFormData,
-  type PaymentInfo,
-} from "../../../../validation/payment";
-
-interface PaymentProps {
-  onPaymentChange: (payment: PaymentInfo) => void;
-  amount: number;
-  onPayPalApprove: (data: any, actions: any) => Promise<void>;
+export interface PaymentMethod {
+  method: "card" | "paypal";
+  cardDetails?: {
+    cardNumber: string;
+    expiryDate: string;
+    cvv: string;
+    cardHolder: string;
+  };
 }
 
-const Payment = ({
-  onPaymentChange,
-  amount,
-  onPayPalApprove,
-}: PaymentProps) => {
-  // Fetch PayPal Client ID from env
-  const initialOptions = {
-    clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
-    currency: "USD",
-    intent: "capture",
-  };
+interface PaymentProps {
+  onPaymentMethodChange: (payment: PaymentMethod) => void;
+  amount: number;
+  onPayPalApprove: (data: any, details: any) => void;
+}
 
+const paymentSchema = z.object({
+  method: z.enum(["card", "paypal"]),
+  cardNumber: z.string().optional(),
+  expiryDate: z.string().optional(),
+  cvv: z.string().optional(),
+  cardHolder: z.string().optional(),
+}).refine((data) => {
+  if (data.method === "card") {
+    const { cardNumber, expiryDate, cvv, cardHolder } = data;
+    return !!cardNumber && !!expiryDate && !!cvv && !!cardHolder;
+  }
+  return true;
+}, {
+  message: "All card details are required",
+  path: ["cardNumber"], // Focus error on card number for simplicity
+});
+
+type PaymentFormData = z.infer<typeof paymentSchema>;
+
+const Payment = ({ onPaymentMethodChange, amount, onPayPalApprove }: PaymentProps) => {
   const {
     register,
-    formState: { errors },
     watch,
     setValue,
+    formState: { errors },
   } = useForm<PaymentFormData>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
-      paymentMethod: "credit_card",
-      cardNumber: "",
-      cardName: "",
-      expiryDate: "",
-      cvv: "",
+      method: "card",
     },
   });
 
   const watchedValues = watch();
-
-  const { paymentMethod, cardNumber, cardName, expiryDate, cvv } =
-    watchedValues;
+  const { method, cardNumber, expiryDate, cvv, cardHolder } = watchedValues;
 
   useEffect(() => {
-    onPaymentChange({
-      paymentMethod,
-      cardNumber,
-      cardName,
-      expiryDate,
-      cvv,
-    });
-  }, [paymentMethod, cardNumber, cardName, expiryDate, cvv, onPaymentChange]);
+    if (method === "card") {
+      onPaymentMethodChange({
+        method: "card",
+        cardDetails: {
+          cardNumber: cardNumber || "",
+          expiryDate: expiryDate || "",
+          cvv: cvv || "",
+          cardHolder: cardHolder || "",
+        },
+      });
+    } else {
+      onPaymentMethodChange({ method: "paypal" });
+    }
+  }, [method, cardNumber, expiryDate, cvv, cardHolder, onPaymentMethodChange]);
 
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, "");
-    value = value.substring(0, 16);
-    const formatted = value.match(/.{1,4}/g)?.join(" ") || value;
-    setValue("cardNumber", formatted);
+    if (value.length > 16) value = value.slice(0, 16);
+    value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+    setValue("cardNumber", value);
   };
 
-  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleExpiryDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, "");
-    if (value.length >= 2) {
-      value = value.substring(0, 2) + "/" + value.substring(2, 4);
-    }
-    value = value.substring(0, 5);
+    if (value.length > 4) value = value.slice(0, 4);
+    if (value.length > 2) value = value.slice(0, 2) + "/" + value.slice(2);
     setValue("expiryDate", value);
   };
 
-  const handleCVVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, "").substring(0, 4);
+  const handleCvvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, "");
+    if (value.length > 3) value = value.slice(0, 3);
     setValue("cvv", value);
   };
 
   return (
     <div className="payment">
       <div className="payment__header">
-        <svg
-          className="payment__icon"
-          width="28"
-          height="28"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-          <line x1="1" y1="10" x2="23" y2="10" />
-        </svg>
-        <h3 className="payment__title">Payment Information</h3>
+        <div className="payment__icon-container">
+          <CreditCard className="payment__icon" />
+        </div>
+        <div className="payment__header-content">
+          <h3 className="payment__title">Payment Method</h3>
+          <span className="payment__subtitle">Secure and encrypted transaction</span>
+        </div>
+        <div className="payment__amount">
+          ${amount.toFixed(2)}
+        </div>
       </div>
 
       <div className="payment__methods">
-        <label className="payment__method">
+        <label
+          className={`payment__method ${method === "card" ? "payment__method--active" : ""
+            }`}
+        >
           <input
-            {...register("paymentMethod")}
             type="radio"
-            value="credit_card"
+            value="card"
+            {...register("method")}
+            className="payment__radio"
           />
-          <span>Credit Card</span>
+          <CreditCard className="payment__method-icon" size={32} />
+          <span className="payment__method-label">Credit Card</span>
+          {method === "card" && (
+            <div className="absolute top-2 right-2 text-primary-600">
+              <Check size={16} />
+            </div>
+          )}
         </label>
-        <label className="payment__method">
+
+        <label
+          className={`payment__method ${method === "paypal" ? "payment__method--active" : ""
+            }`}
+        >
           <input
-            {...register("paymentMethod")}
             type="radio"
-            value="debit_card"
+            value="paypal"
+            {...register("method")}
+            className="payment__radio"
           />
-          <span>Debit Card</span>
-        </label>
-        <label className="payment__method">
-          <input {...register("paymentMethod")} type="radio" value="paypal" />
-          <span>PayPal</span>
+          <div className="payment__paypal-icon" />
+          <span className="payment__method-label">PayPal</span>
+          {method === "paypal" && (
+            <div className="absolute top-2 right-2 text-primary-600">
+              <Check size={16} />
+            </div>
+          )}
         </label>
       </div>
 
-      {(watchedValues.paymentMethod === "credit_card" ||
-        watchedValues.paymentMethod === "debit_card") && (
-        <form className="payment__form">
-          <div className="payment__field">
-            <label htmlFor="cardNumber" className="payment__label">
-              Card Number <span className="payment__required">*</span>
-            </label>
-            <input
-              {...register("cardNumber")}
-              type="text"
-              id="cardNumber"
-              className={`payment__input ${
-                errors.cardNumber ? "payment__input--error" : ""
-              } `}
-              onChange={handleCardNumberChange}
-              placeholder="1234 5678 9012 3456"
-            />
-            {errors.cardNumber && (
-              <span className="payment__error">
-                {errors.cardNumber.message}
-              </span>
-            )}
-          </div>
-
-          <div className="payment__field">
-            <label htmlFor="cardName" className="payment__label">
-              Cardholder Name <span className="payment__required">*</span>
-            </label>
-            <input
-              {...register("cardName")}
-              type="text"
-              id="cardName"
-              className={`payment__input ${
-                errors.cardName ? "payment__input--error" : ""
-              } `}
-              placeholder="John Doe"
-            />
-            {errors.cardName && (
-              <span className="payment__error">{errors.cardName.message}</span>
-            )}
-          </div>
-
-          <div className="payment__row">
+      <div className="payment__content">
+        {method === "card" ? (
+          <div className="payment__card-form">
             <div className="payment__field">
-              <label htmlFor="expiryDate" className="payment__label">
-                Expiry Date <span className="payment__required">*</span>
-              </label>
-              <input
-                {...register("expiryDate")}
-                type="text"
-                id="expiryDate"
-                className={`payment__input ${
-                  errors.expiryDate ? "payment__input--error" : ""
-                } `}
-                onChange={handleExpiryChange}
-                placeholder="MM/YY"
-              />
-              {errors.expiryDate && (
-                <span className="payment__error">
-                  {errors.expiryDate.message}
-                </span>
-              )}
+              <label className="payment__label">Card Number</label>
+              <div className="payment__input-wrapper">
+                <input
+                  type="text"
+                  placeholder="0000 0000 0000 0000"
+                  className={`payment__input ${errors.cardNumber ? "payment__input--error" : ""
+                    }`}
+                  value={cardNumber || ""}
+                  onChange={handleCardNumberChange}
+                  maxLength={19}
+                />
+                <CreditCard className="payment__input-icon" size={20} />
+              </div>
+            </div>
+
+            <div className="payment__row">
+              <div className="payment__field">
+                <label className="payment__label">Expiry Date</label>
+                <div className="payment__input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="MM/YY"
+                    className={`payment__input ${errors.expiryDate ? "payment__input--error" : ""
+                      }`}
+                    value={expiryDate || ""}
+                    onChange={handleExpiryDateChange}
+                    maxLength={5}
+                  />
+                  <Calendar className="payment__input-icon" size={20} />
+                </div>
+              </div>
+
+              <div className="payment__field">
+                <label className="payment__label">CVV</label>
+                <div className="payment__input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="123"
+                    className={`payment__input ${errors.cvv ? "payment__input--error" : ""
+                      }`}
+                    value={cvv || ""}
+                    onChange={handleCvvChange}
+                    maxLength={3}
+                  />
+                  <Lock className="payment__input-icon" size={20} />
+                </div>
+              </div>
             </div>
 
             <div className="payment__field">
-              <label htmlFor="cvv" className="payment__label">
-                CVV <span className="payment__required">*</span>
-              </label>
-              <input
-                {...register("cvv")}
-                type="text"
-                id="cvv"
-                className={`payment__input ${
-                  errors.cvv ? "payment__input--error" : ""
-                } `}
-                onChange={handleCVVChange}
-                placeholder="123"
-              />
-              {errors.cvv && (
-                <span className="payment__error">{errors.cvv.message}</span>
-              )}
+              <label className="payment__label">Card Holder Name</label>
+              <div className="payment__input-wrapper">
+                <input
+                  type="text"
+                  placeholder="John Doe"
+                  className={`payment__input ${errors.cardHolder ? "payment__input--error" : ""
+                    }`}
+                  {...register("cardHolder")}
+                />
+                <Wallet className="payment__input-icon" size={20} />
+              </div>
             </div>
           </div>
-        </form>
-      )}
-
-      {watchedValues.paymentMethod === "paypal" && (
-        <div className="payment__paypal-info">
-          <p className="payment__paypal-text">
-            Complete your payment securely with PayPal.
-          </p>
-          <div className="payment__paypal-button">
-            <PayPalScriptProvider options={initialOptions}>
+        ) : (
+          <div className="payment__paypal-container">
+            <p className="payment__paypal-text">
+              You will be redirected to PayPal to complete your purchase securely.
+            </p>
+            <div className="payment__paypal-button-wrapper">
               <PayPalButtons
-                style={{ layout: "vertical" }}
+                style={{ layout: "horizontal", height: 48 }}
+                forceReRender={[amount]}
                 createOrder={(_data, actions) => {
                   return actions.order.create({
+                    intent: "CAPTURE",
                     purchase_units: [
                       {
                         amount: {
@@ -226,19 +235,18 @@ const Payment = ({
                         },
                       },
                     ],
-                    intent: "CAPTURE",
                   });
                 }}
-                onApprove={async (data, actions) => {
-                  return actions.order!.capture().then(async (details) => {
-                    await onPayPalApprove(data, details);
+                onApprove={(data, actions) => {
+                  return actions.order!.capture().then((details) => {
+                    onPayPalApprove(data, details);
                   });
                 }}
               />
-            </PayPalScriptProvider>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

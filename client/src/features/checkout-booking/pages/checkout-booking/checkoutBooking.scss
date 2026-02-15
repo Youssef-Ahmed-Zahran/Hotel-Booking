@@ -3,7 +3,7 @@
 
 .checkout-booking {
   min-height: 100vh;
-  padding: $spacing-12 0 $spacing-20;
+  padding: $spacing-6 0 $spacing-20;
   background: $bg-secondary;
   position: relative;
   @include fade-in(400ms);
@@ -16,27 +16,23 @@
     z-index: 1;
   }
 
+  &__header {
+    text-align: center;
+    margin-bottom: $spacing-12;
+  }
+
   &__title {
     @include heading-1;
     font-size: clamp($text-3xl, 5vw, $text-5xl);
-    margin-bottom: $spacing-12;
-    text-align: center;
+    margin-bottom: $spacing-2;
     color: $neutral-900;
     letter-spacing: -0.03em;
-    position: relative;
-    padding-bottom: $spacing-6;
+  }
 
-    &::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 4px;
-      background: $primary-500;
-      border-radius: $radius-full;
-    }
+  &__subtitle {
+    font-size: $text-lg;
+    color: $neutral-500;
+    font-weight: $font-medium;
   }
 
   &__progress {
@@ -44,11 +40,12 @@
     align-items: center;
     justify-content: center;
     margin-bottom: $spacing-12;
-    padding: $spacing-8;
-    background: $bg-primary;
+    padding: $spacing-6 $spacing-8;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
     border-radius: $radius-3xl;
     box-shadow: $shadow-xl;
-    border: 1px solid $neutral-100;
+    border: 1px solid rgba(255, 255, 255, 0.5);
 
     @include respond-to(md) {
       gap: $spacing-4;
@@ -57,25 +54,30 @@
     @media (max-width: 768px) {
       flex-direction: column;
       gap: $spacing-4;
+      align-items: flex-start;
+      margin-bottom: $spacing-8;
     }
   }
 
   &__step {
     display: flex;
     align-items: center;
-    gap: $spacing-4;
-    opacity: 0.4;
+    gap: $spacing-3;
+    opacity: 0.5;
     transition: all $transition-base;
 
     &--active {
       opacity: 1;
-      transform: scale(1.05);
 
       .checkout-booking__step-icon {
         background: $primary-50;
         color: $primary-600;
         border: 2px solid $primary-200;
         box-shadow: 0 0 0 4px rgba($primary-500, 0.1);
+      }
+
+      .checkout-booking__step-title {
+        color: $primary-700;
       }
     }
 
@@ -95,8 +97,8 @@
   }
 
   &__step-icon {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     border-radius: $radius-full;
     background: $neutral-50;
     color: $neutral-400;
@@ -105,21 +107,15 @@
     align-items: center;
     justify-content: center;
     font-weight: $font-bold;
-    font-size: $text-base;
+    font-size: $text-sm;
     transition: all $transition-base;
     flex-shrink: 0;
-
-    svg {
-      width: 20px;
-      height: 20px;
-      stroke-width: 3;
-    }
   }
 
   &__step-content {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 0;
   }
 
   &__step-title {
@@ -139,25 +135,22 @@
   &__step-divider {
     width: 60px;
     height: 2px;
-    background: $neutral-100;
-    margin: 0 $spacing-2;
+    background: $neutral-200;
+    margin: 0 $spacing-6;
+    border-radius: $radius-full;
 
     @media (max-width: 768px) {
       width: 2px;
-      height: 24px;
-      margin: 0;
+      height: 20px;
+      margin: 0 20px;
     }
   }
 
   &__content {
     display: grid;
     grid-template-columns: 1fr 420px;
-    gap: $spacing-12;
+    gap: $spacing-8;
     align-items: start;
-
-    @include respond-to(lg) {
-      gap: $spacing-8;
-    }
 
     @media (max-width: 1024px) {
       grid-template-columns: 1fr;
@@ -166,7 +159,7 @@
 
   &__main {
     @include flex-column;
-    gap: $spacing-8;
+    gap: $spacing-6;
   }
 
   &__sidebar {
@@ -179,14 +172,13 @@
     padding: $spacing-4 $spacing-6;
     background: #fef2f2;
     border: 1px solid #fee2e2;
-    border-radius: $radius-2xl;
+    border-radius: $radius-xl;
     color: #b91c1c;
     font-size: $text-sm;
     font-weight: $font-bold;
     display: flex;
     align-items: center;
     gap: $spacing-3;
-    box-shadow: $shadow-sm;
     animation: shake 0.5s ease-in-out;
   }
 
@@ -209,25 +201,52 @@
     }
   }
 
+  &__error-icon {
+    width: 64px;
+    height: 64px;
+    color: $neutral-300;
+    margin-bottom: $spacing-4;
+  }
+
   &__security {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: $spacing-3;
-    padding: $spacing-4;
-    background: $bg-primary;
+    gap: $spacing-4;
+    padding: $spacing-6;
+    background: rgba(255, 255, 255, 0.5);
     border-radius: $radius-2xl;
-    border: 1px solid $neutral-100;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(5px);
     color: $neutral-500;
     font-size: $text-xs;
     font-weight: $font-bold;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 
+    @media (max-width: 600px) {
+      flex-direction: column;
+      gap: $spacing-2;
+    }
+  }
+
+  &__security-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+
     svg {
       color: #10b981;
-      width: 18px;
-      height: 18px;
+    }
+  }
+
+  &__security-divider {
+    width: 1px;
+    height: 16px;
+    background: $neutral-300;
+
+    @media (max-width: 600px) {
+      display: none;
     }
   }
 
@@ -237,27 +256,25 @@
     font-size: $text-lg;
     width: 100%;
     margin-top: $spacing-4;
-    border-radius: $radius-full;
+    border-radius: $radius-xl;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: $spacing-3;
-    box-shadow: $shadow-primary;
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
+    background: linear-gradient(135deg, $primary-600, $primary-700);
+    box-shadow: 0 4px 12px rgba($primary-600, 0.2);
 
     &:hover:not(:disabled) {
       transform: translateY(-2px);
       box-shadow: 0 12px 24px rgba($primary-600, 0.3);
+      background: linear-gradient(135deg, $primary-600, $primary-800);
     }
 
     &:disabled {
-      opacity: 0.5;
+      opacity: 0.7;
       cursor: not-allowed;
       transform: none;
+      filter: grayscale(0.5);
     }
   }
 
@@ -265,6 +282,9 @@
     @include button-primary;
     padding: $spacing-4 $spacing-10;
     border-radius: $radius-full;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
   }
 }
 
@@ -275,20 +295,10 @@
   }
 
   25% {
-    transform: translateX(-8px);
+    transform: translateX(-4px);
   }
 
   75% {
-    transform: translateX(8px);
-  }
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
+    transform: translateX(4px);
   }
 }

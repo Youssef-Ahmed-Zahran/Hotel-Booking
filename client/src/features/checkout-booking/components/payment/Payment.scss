@@ -7,103 +7,199 @@
   padding: 0;
   gap: 0;
   box-shadow: $shadow-xl;
-  background: $bg-primary;
-  border: 1px solid $neutral-100;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px);
   overflow: hidden;
+  border-radius: $radius-2xl;
+  transition: transform $transition-base, box-shadow $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-2xl;
+  }
 
   &__header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: $spacing-5;
-    padding: $spacing-8;
+    padding: $spacing-6;
     background: linear-gradient(135deg, $primary-600, $primary-800);
     position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+      animation: rotate 20s linear infinite;
+    }
+  }
+
+  &__icon-container {
+    padding: $spacing-3;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    border-radius: $radius-xl;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: $shadow-sm;
   }
 
   &__icon {
-    width: 40px;
-    height: 40px;
-    padding: $spacing-2.5;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(4px);
-    border-radius: $radius-xl;
+    width: 24px;
+    height: 24px;
     color: white;
-    flex-shrink: 0;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    stroke-width: 2.5;
+  }
+
+  &__header-content {
+    @include flex-column;
+    gap: $spacing-1;
+    flex: 1;
+    position: relative;
+    z-index: 1;
   }
 
   &__title {
-    font-size: $text-2xl;
-    font-weight: $font-extrabold;
+    font-size: $text-xl;
+    font-weight: $font-bold;
     margin: 0;
     color: white;
     letter-spacing: -0.02em;
   }
 
+  &__subtitle {
+    font-size: $text-sm;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: $font-medium;
+  }
+
+  &__amount {
+    font-size: $text-xl;
+    font-weight: $font-extrabold;
+    color: white;
+    background: rgba(255, 255, 255, 0.25);
+    padding: $spacing-2 $spacing-4;
+    border-radius: $radius-lg;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+  }
+
   &__methods {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: $spacing-6;
-    padding: $spacing-10 $spacing-10 0 $spacing-10;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-5;
+    padding: $spacing-8;
+    background: rgba($neutral-50, 0.5);
   }
 
   &__method {
-    @include flex-center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: $spacing-3;
     padding: $spacing-6;
-    border: 2px solid $neutral-100;
-    border-radius: $radius-2xl;
+    border: 2px solid $neutral-200;
+    border-radius: $radius-xl;
     cursor: pointer;
     transition: all $transition-base;
     background: white;
-    position: relative;
-    overflow: hidden;
+    box-shadow: $shadow-sm;
 
     &:hover {
-      border-color: $primary-300;
-      box-shadow: $shadow-md;
       transform: translateY(-2px);
-    }
-
-    input[type="radio"] {
-      cursor: pointer;
-      width: 20px;
-      height: 20px;
-      accent-color: $primary-600;
-    }
-
-    &:has(input[type="radio"]:checked) {
-      border-color: $primary-500;
+      box-shadow: $shadow-md;
+      border-color: $primary-300;
       background: $primary-50;
-      box-shadow: 0 0 0 4px rgba($primary-500, 0.08);
+    }
 
-      span {
+    &--active {
+      background: linear-gradient(135deg, $primary-50, white);
+      border-color: $primary-600;
+      box-shadow: 0 0 0 4px rgba($primary-500, 0.15);
+      z-index: 1;
+
+      .payment__method-icon {
+        color: $primary-600;
+        transform: scale(1.1);
+      }
+
+      .payment__method-label {
         color: $primary-700;
         font-weight: $font-bold;
       }
     }
-
-    span {
-      font-size: $text-base;
-      font-weight: $font-bold;
-      color: $neutral-700;
-    }
   }
 
-  &__form {
+  &__radio {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  &__method-icon {
+    color: $neutral-400;
+    transition: all $transition-base;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05));
+  }
+
+  &__paypal-icon {
+    width: 32px;
+    height: 32px;
+    background-image: url("https://www.paypalobjects.com/webstatic/icon/pp258.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: grayscale(1) opacity(0.7);
+    transition: all $transition-base;
+  }
+
+  &__method--active .payment__paypal-icon {
+    filter: grayscale(0) opacity(1);
+    transform: scale(1.1);
+  }
+
+  &__method-label {
+    font-size: $text-sm;
+    font-weight: $font-bold;
+    color: $neutral-500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: color $transition-base;
+  }
+
+  &__content {
+    padding: $spacing-8;
+  }
+
+  &__card-form {
     @include flex-column;
     gap: $spacing-6;
-    padding: $spacing-10;
+    animation: fadeIn 0.4s ease-out;
+    background: linear-gradient(135deg, $neutral-50, white);
+    padding: $spacing-6;
+    border-radius: $radius-2xl;
+    border: 1px solid $neutral-100;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
   }
 
   &__row {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: $spacing-6;
-
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-    }
   }
 
   &__field {
@@ -112,86 +208,116 @@
   }
 
   &__label {
-    font-size: $text-sm;
+    font-size: $text-xs;
     font-weight: $font-bold;
-    color: $neutral-700;
-    letter-spacing: 0.02em;
+    color: $neutral-500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-left: $spacing-1;
   }
 
-  &__required {
-    color: #ef4444;
-    margin-left: 2px;
+  &__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    transition: transform $transition-fast;
+
+    &:focus-within {
+      transform: translateY(-1px);
+    }
+  }
+
+  &__input-icon {
+    position: absolute;
+    left: $spacing-4;
+    color: $neutral-400;
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+    z-index: 2;
+    transition: color $transition-base;
   }
 
   &__input {
-    padding: $spacing-3.5 $spacing-5;
-    border: 2px solid $neutral-100;
+    width: 100%;
+    padding: $spacing-3 $spacing-5 $spacing-3 $spacing-12; // Adjusted padding
+    border: 2px solid $neutral-200;
     border-radius: $radius-xl;
     font-family: inherit;
     font-size: $text-base;
     font-weight: $font-medium;
     transition: all $transition-base;
-    background-color: $bg-primary;
+    background-color: white;
     color: $neutral-900;
+    box-shadow: $shadow-sm;
 
     &::placeholder {
       color: $neutral-400;
+      font-weight: $font-normal;
     }
 
     &:focus {
       outline: none;
-      border-color: $primary-400;
-      box-shadow: 0 0 0 4px rgba($primary-500, 0.08);
+      border-color: $primary-500;
+      box-shadow: 0 0 0 4px rgba($primary-500, 0.1);
       background-color: white;
+
+      &+.payment__input-icon {
+        color: $primary-500;
+      }
     }
 
     &--error {
-      border-color: #fca5a5;
+      border-color: $error;
       background-color: #fffafb;
 
       &:focus {
-        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08);
+        box-shadow: 0 0 0 4px rgba($error, 0.1);
+        border-color: $error;
       }
     }
   }
 
-  &__error {
-    font-size: $text-xs;
-    color: #ef4444;
-    font-weight: $font-bold;
-    display: flex;
+  // Focus state for icon when input is focused
+  &__input:focus~&__input-icon {
+    color: $primary-500;
+  }
+
+  &__paypal-container {
+    @include flex-column;
     align-items: center;
-    gap: $spacing-1;
-    margin-top: 2px;
-    animation: slideIn 0.2s ease-out;
-  }
-
-  &__paypal-info {
-    margin: $spacing-4 $spacing-10 $spacing-10 $spacing-10;
-    padding: $spacing-6;
-    background: $primary-50;
+    gap: $spacing-6;
+    padding: $spacing-8;
+    text-align: center;
+    animation: fadeIn 0.4s ease-out;
+    background: $neutral-50;
     border-radius: $radius-2xl;
-    border: 1px solid $primary-100;
-    color: $neutral-600;
-
-    p {
-      margin: 0;
-      font-size: $text-base;
-      color: $neutral-800;
-      font-weight: $font-bold;
-      margin-bottom: $spacing-4;
-    }
+    border: 1px dashed $neutral-300;
   }
 
-  &__paypal-button {
-    margin-top: $spacing-2;
+  &__paypal-text {
+    font-size: $text-base;
+    color: $neutral-600;
+    font-weight: $font-medium;
+    max-width: 300px;
+    line-height: $leading-relaxed;
   }
 }
 
-@keyframes slideIn {
+@keyframes rotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(10px);
   }
 
   to {

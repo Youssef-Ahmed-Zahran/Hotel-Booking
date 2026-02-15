@@ -2,239 +2,485 @@
 @use "../../../../styles/mixins" as *;
 
 .booking-confirmation {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: $spacing-6;
+  padding: $spacing-12 $spacing-6;
   @include flex-column;
   gap: $spacing-10;
+  animation: fadeIn 0.8s ease-out;
 
-  &__success {
+  &__hero {
+    position: relative;
+    padding: $spacing-16 $spacing-8;
+    background: linear-gradient(135deg, $primary-600 0%, $primary-800 100%);
+    border-radius: $radius-3xl;
+    overflow: hidden;
+    color: white;
     text-align: center;
+    box-shadow: 0 20px 40px rgba($primary-600, 0.3);
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+    }
+  }
+
+  &__success-wrapper {
+    position: relative;
+    z-index: 1;
     @include flex-column;
     align-items: center;
     gap: $spacing-6;
-    padding: $spacing-12 $spacing-8;
-    background: white;
-    border-radius: $radius-3xl;
-    box-shadow: $shadow-xl;
-    border: 1px solid $neutral-100;
-    position: relative;
-    overflow: hidden;
   }
 
-  &__icon {
+  &__icon-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    @include flex-center;
+  }
+
+  &__success-icon {
     width: 80px;
     height: 80px;
-    border-radius: $radius-full;
-    background: $primary-600;
     color: white;
-    @include flex-center;
-    box-shadow: 0 8px 16px rgba($primary-600, 0.2);
-    margin: 0 auto;
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+    animation: successScale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
 
-    svg {
-      width: 40px;
-      height: 40px;
-      stroke-width: 3;
-    }
+  &__glow {
+    position: absolute;
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    animation: pulseGlow 2s ease-in-out infinite;
   }
 
   &__title {
     @include heading-1;
-    font-size: $text-4xl;
-    color: $neutral-900;
+    font-size: clamp($text-3xl, 5vw, $text-5xl);
+    color: white;
     margin: 0;
+    letter-spacing: -0.02em;
   }
 
   &__subtitle {
-    font-size: $text-base;
-    color: $neutral-500;
+    font-size: $text-lg;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 600px;
     line-height: 1.6;
-    max-width: 500px;
-    margin: 0 auto;
 
     strong {
-      color: $neutral-800;
+      color: white;
+      font-weight: $font-bold;
     }
   }
 
-  &__details {
+  &__content {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: $spacing-8;
+
+    @media (max-width: 992px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__main-details {
     @include flex-column;
     gap: $spacing-8;
   }
 
-  &__section {
-    @include card-base;
+  &__card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: $radius-2xl;
     padding: $spacing-8;
-    background: white;
-    border: 1px solid $neutral-100;
-    box-shadow: $shadow-lg;
+    box-shadow: $shadow-xl;
+    transition: transform $transition-base, box-shadow $transition-base;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-2xl;
+    }
 
     &-header {
       display: flex;
       align-items: center;
       gap: $spacing-3;
       margin-bottom: $spacing-6;
+      padding-bottom: $spacing-4;
+      border-bottom: 1px solid $neutral-100;
+
+      h3 {
+        font-size: $text-xl;
+        font-weight: $font-bold;
+        color: $neutral-800;
+        margin: 0;
+      }
     }
 
     &-icon {
-      width: 20px;
-      height: 20px;
-      color: $primary-500;
-      stroke-width: 2.5;
-    }
-
-    &-title {
-      font-size: $text-lg;
-      font-weight: $font-bold;
-      color: $neutral-800;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-  }
-
-  &__reference {
-    text-align: center;
-    background: $neutral-50;
-    padding: $spacing-8;
-    border-radius: $radius-2xl;
-    border: 2px dashed $neutral-200;
-  }
-
-  &__booking-id {
-    display: block;
-    font-size: $text-3xl;
-    font-weight: $font-bold;
-    color: $primary-600;
-    letter-spacing: 0.2em;
-    margin-top: $spacing-2;
-  }
-
-  &__info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: $spacing-6;
-  }
-
-  &__info-item {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-1;
-
-    &--highlight {
-      padding: $spacing-4;
-      background: $primary-50;
-      border-radius: $radius-2xl;
-      border: 1px solid $primary-100;
-    }
-  }
-
-  &__info-label {
-    font-size: $text-xs;
-    font-weight: $font-bold;
-    color: $neutral-400;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  &__info-value {
-    font-size: $text-base;
-    font-weight: $font-bold;
-    color: $neutral-800;
-
-    &--price {
-      font-size: $text-xl;
+      width: 24px;
+      height: 24px;
       color: $primary-600;
     }
+
+    &--reference {
+      background: linear-gradient(135deg, $neutral-900 0%, $neutral-800 100%);
+      color: white;
+
+      .booking-confirmation__card-header {
+        border-color: rgba(255, 255, 255, 0.1);
+
+        h3 {
+          color: white;
+        }
+
+        .booking-confirmation__card-icon {
+          color: $primary-400;
+        }
+      }
+    }
   }
 
-  &__steps {
+  &__reference-value {
+    text-align: center;
+    padding: $spacing-4;
+
+    span {
+      display: block;
+      font-size: $text-4xl;
+      font-weight: $font-extrabold;
+      color: $primary-400;
+      letter-spacing: 0.1em;
+      margin-bottom: $spacing-2;
+      font-family: monospace;
+    }
+
+    p {
+      font-size: $text-sm;
+      color: $neutral-400;
+    }
+  }
+
+  &__details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-8;
+
+    @media (max-width: 576px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__detail-item {
     display: flex;
-    flex-direction: column;
     gap: $spacing-4;
+    align-items: flex-start;
+
+    .booking-confirmation__detail-icon {
+      width: 20px;
+      height: 20px;
+      color: $neutral-400;
+      margin-top: $spacing-1;
+    }
+
+    .booking-confirmation__detail-text {
+      @include flex-column;
+      gap: $spacing-1;
+
+      label {
+        font-size: $text-xs;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: $neutral-500;
+        font-weight: $font-bold;
+      }
+
+      span {
+        font-size: $text-base;
+        color: $neutral-900;
+        font-weight: $font-medium;
+
+        &.price {
+          font-size: $text-2xl;
+          color: $primary-700;
+          font-weight: $font-bold;
+        }
+      }
+    }
+
+    &--price {
+      grid-column: span 2;
+      padding: $spacing-6;
+      background: $primary-50;
+      border-radius: $radius-xl;
+      align-items: center;
+
+      @media (max-width: 576px) {
+        grid-column: span 1;
+      }
+
+      .booking-confirmation__detail-icon {
+        color: $primary-600;
+        width: 28px;
+        height: 28px;
+        margin: 0;
+      }
+    }
+  }
+
+  &__sidebar {
+    @include flex-column;
+    gap: $spacing-8;
+  }
+
+  &__steps-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    @include flex-column;
+    gap: $spacing-6;
 
     li {
       display: flex;
-      align-items: center;
-      gap: $spacing-3;
-      color: $neutral-600;
-      font-weight: $font-medium;
+      gap: $spacing-4;
+      position: relative;
 
-      svg {
-        width: 18px;
-        height: 18px;
-        color: #10b981;
+      &::after {
+        content: "";
+        position: absolute;
+        left: 15px;
+        top: 35px;
+        bottom: -20px;
+        width: 2px;
+        background: $neutral-100;
+      }
+
+      &:last-child::after {
+        display: none;
+      }
+
+      .step-number {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: $radius-full;
+        background: $primary-600;
+        color: white;
+        @include flex-center;
+        font-size: $text-sm;
+        font-weight: $font-bold;
+        z-index: 1;
+      }
+
+      .step-content {
+        display: flex;
+        gap: $spacing-3;
+        align-items: flex-start;
+        padding-top: $spacing-1;
+
+        .step-icon {
+          width: 18px;
+          height: 18px;
+          color: $neutral-400;
+          margin-top: 2px;
+        }
+
+        p {
+          font-size: $text-sm;
+          color: $neutral-600;
+          line-height: 1.5;
+          margin: 0;
+
+          strong {
+            color: $neutral-900;
+          }
+        }
       }
     }
   }
 
   &__actions {
-    display: flex;
-    gap: $spacing-4;
-    justify-content: center;
-    margin-top: $spacing-4;
+    @include flex-column;
+    gap: $spacing-3;
   }
 
   &__btn {
     @include flex-center;
-    gap: $spacing-2;
+    gap: $spacing-3;
     padding: $spacing-4 $spacing-8;
-    border-radius: $radius-full;
-    font-size: $text-sm;
+    border-radius: $radius-xl;
+    font-size: $text-base;
     font-weight: $font-bold;
     transition: all $transition-base;
+    width: 100%;
+
+    .btn-icon {
+      width: 20px;
+      height: 20px;
+    }
 
     &--primary {
-      @include button-primary;
+      background: $primary-600;
+      color: white;
+      box-shadow: 0 4px 12px rgba($primary-600, 0.2);
+
+      &:hover {
+        background: $primary-700;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba($primary-600, 0.3);
+      }
     }
 
     &--secondary {
-      @include button-secondary;
+      background: white;
+      color: $neutral-800;
+      border: 1px solid $neutral-200;
+
+      &:hover {
+        background: $neutral-50;
+        border-color: $neutral-300;
+      }
     }
 
     &--print {
-      border: 2px solid $neutral-200;
-      color: $neutral-600;
+      background: $neutral-100;
+      color: $neutral-700;
 
       &:hover {
-        border-color: $neutral-400;
-        color: $neutral-800;
+        background: $neutral-200;
+        color: $neutral-900;
       }
     }
   }
 }
 
-@keyframes successPulse {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 10px 40px rgba(34, 197, 94, 0.4);
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
 
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 15px 50px rgba(34, 197, 94, 0.6);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@keyframes pulse {
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes successScale {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseGlow {
+
   0%,
   100% {
-    opacity: 0.5;
+    transform: scale(1);
+    opacity: 0.3;
   }
 
   50% {
-    opacity: 0.8;
+    transform: scale(1.1);
+    opacity: 0.5;
+  }
+}
+
+// Confetti
+.booking-confirmation__confetti-piece {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: white;
+  opacity: 0;
+  border-radius: 2px;
+
+  @for $i from 1 through 12 {
+    &--#{$i} {
+      animation: confetti-fall-#{$i} 3s ease-out infinite;
+      animation-delay: $i * 0.1s;
+      left: random(100) * 1%;
+      background: nth((#ffed4a, #ff5e5e, #4ade80, #60a5fa, #c084fc), random(5));
+    }
+  }
+}
+
+@for $i from 1 through 12 {
+  @keyframes confetti-fall-#{$i} {
+    0% {
+      transform: translateY(-100px) rotate(0);
+      opacity: 1;
+    }
+
+    100% {
+      transform: translateY(200px) rotate(random(360) * 1deg);
+      opacity: 0;
+    }
   }
 }
 
 @media print {
   .booking-confirmation {
-    &__actions {
+    padding: 0;
+
+    &__hero {
+      background: white !important;
+      color: black !important;
+      box-shadow: none;
+      padding: $spacing-8;
+      border: 1px solid $neutral-200;
+    }
+
+    &__success-icon,
+    &__glow,
+    &__confetti {
       display: none;
     }
 
-    &__confetti {
+    &__title,
+    &__subtitle {
+      color: black !important;
+    }
+
+    &__card {
+      background: white !important;
+      border: 1px solid $neutral-200 !important;
+      box-shadow: none !important;
+      transform: none !important;
+    }
+
+    &__sidebar {
+      display: block;
+    }
+
+    &__actions {
       display: none;
     }
   }
