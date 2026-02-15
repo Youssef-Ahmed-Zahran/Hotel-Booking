@@ -15,6 +15,7 @@ import Login from "./features/auth/pages/login/Login";
 import Register from "./features/auth/pages/register/Register";
 import Home from "./features/home/pages/Home";
 import Hotels from "./features/hotels/pages/hotels/Hotels";
+import HotelDetails from "./features/hotel-details/pages/hotel-details/HotelDetails";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
               {/* Public routes */}
               <Route path="/" element={<Home />} />
               <Route path="/hotels" element={<Hotels />} />
+              <Route path="/hotels/:id" element={<HotelDetails />} />
 
               {/* Auth routes */}
               <Route element={<AuthRoute />}>
