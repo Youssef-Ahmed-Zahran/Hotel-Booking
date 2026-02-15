@@ -1,0 +1,222 @@
+@import "../../../../styles/variables";
+
+.review-card {
+  padding: $spacing-6;
+  border-radius: $radius-lg;
+  background-color: $bg-primary;
+  border: 1px solid $border-light;
+  transition: all $transition-base;
+  margin-bottom: $spacing-4;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+  }
+
+  &--editing {
+    border-color: $primary-300;
+    box-shadow: $shadow-lg;
+    transform: none !important;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: $spacing-4;
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+  }
+
+  &__avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-full;
+    background: $gradient-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: white;
+    font-weight: $font-semibold;
+  }
+
+  &__initials {
+    font-size: $text-base;
+  }
+
+  &__user-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__username {
+    margin: 0;
+    font-size: $text-base;
+    font-weight: $font-semibold;
+    color: $text-primary;
+  }
+
+  &__date {
+    font-size: $text-xs;
+    color: $text-secondary;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: $spacing-2;
+  }
+
+  &__rating {
+    display: flex;
+    gap: 2px;
+  }
+
+  .star {
+    font-size: $text-base;
+
+    &--filled {
+      color: $warning;
+    }
+
+    &--empty {
+      color: $neutral-200;
+    }
+
+    &--interactive {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: transform $transition-fast;
+      font-size: $text-xl;
+
+      &:hover {
+        transform: scale(1.2);
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-1;
+  }
+
+  &__action {
+    background: none;
+    border: none;
+    color: $text-tertiary;
+    cursor: pointer;
+    padding: $spacing-1;
+    border-radius: $radius-sm;
+    transition: all $transition-fast;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      &--edit {
+        color: $primary-600;
+        background-color: $primary-50;
+      }
+
+      &--delete {
+        color: $error;
+        background-color: $error-light;
+      }
+    }
+  }
+
+  &__body {
+    margin-top: $spacing-2;
+  }
+
+  &__comment {
+    margin: 0;
+    font-size: $text-sm;
+    color: $text-secondary;
+    line-height: $leading-relaxed;
+    white-space: pre-line;
+  }
+
+  // Edit Form Styles
+  &__edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+    margin-top: $spacing-2;
+  }
+
+  &__edit-rating {
+    display: flex;
+    gap: $spacing-1;
+  }
+
+  &__edit-textarea {
+    width: 100%;
+    padding: $spacing-3;
+    border: 1px solid $border-medium;
+    border-radius: $radius-md;
+    font-family: inherit;
+    font-size: $text-sm;
+    resize: vertical;
+    transition: all $transition-base;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-400;
+      box-shadow: 0 0 0 3px $primary-50;
+    }
+  }
+
+  &__error {
+    margin: 0;
+    color: $error;
+    font-size: $text-xs;
+  }
+
+  &__edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-3;
+  }
+
+  &__btn {
+    padding: $spacing-2 $spacing-4;
+    border-radius: $radius-md;
+    font-size: $text-sm;
+    font-weight: $font-semibold;
+    cursor: pointer;
+    transition: all $transition-base;
+    border: none;
+
+    &--cancel {
+      background-color: $neutral-100;
+      color: $text-secondary;
+
+      &:hover {
+        background-color: $neutral-200;
+      }
+    }
+
+    &--save {
+      background: $gradient-primary;
+      color: white;
+
+      &:hover {
+        box-shadow: $shadow-primary;
+      }
+
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+    }
+  }
+}

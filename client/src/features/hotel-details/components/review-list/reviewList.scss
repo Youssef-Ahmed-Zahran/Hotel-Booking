@@ -1,0 +1,100 @@
+@import "../../../../styles/variables";
+
+.review-list {
+  margin-top: $spacing-12;
+  padding-top: $spacing-8;
+  border-top: 1px solid $border-light;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-8;
+    gap: $spacing-6;
+
+    @media (max-width: $breakpoint-sm) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: $spacing-4;
+    }
+  }
+
+  &__summary {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: $text-2xl;
+    font-weight: $font-bold;
+    color: $text-primary;
+    font-family: $font-secondary;
+  }
+
+  &__stats {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+  }
+
+  &__rating-badge {
+    background: $gradient-primary;
+    color: white;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $text-xl;
+    font-weight: $font-bold;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-primary;
+  }
+
+  &__count-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__rating-text {
+    font-weight: $font-semibold;
+    font-size: $text-lg;
+    color: $text-primary;
+  }
+
+  &__count {
+    font-size: $text-sm;
+    color: $text-secondary;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+  }
+
+  &__empty {
+    padding: $spacing-12;
+    text-align: center;
+    background-color: $bg-secondary;
+    border-radius: $radius-xl;
+    border: 2px dashed $border-dark;
+    color: $text-secondary;
+
+    p {
+      margin: 0;
+      font-size: $text-lg;
+    }
+  }
+
+  &__error {
+    padding: $spacing-6;
+    background-color: $error-light;
+    color: $error;
+    border-radius: $radius-md;
+    text-align: center;
+    margin-bottom: $spacing-6;
+  }
+}

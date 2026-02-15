@@ -1,0 +1,93 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.apartment-card {
+  @include card-base;
+  @include hover-lift;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+  background: $bg-primary;
+  border: 1px solid $neutral-100;
+  overflow: hidden;
+
+  @include respond-to(md) {
+    flex-direction: row;
+    gap: 0;
+  }
+
+  &__image {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+
+    @include respond-to(md) {
+      width: 280px;
+      min-width: 280px;
+      height: auto;
+    }
+  }
+
+  &__content {
+    flex: 1;
+    padding: $spacing-6 $spacing-8;
+    @include flex-column;
+    gap: $spacing-4;
+  }
+
+  &__name {
+    font-size: $text-xl;
+    font-weight: $font-bold;
+    color: $neutral-900;
+    letter-spacing: -0.01em;
+  }
+
+  &__details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-6;
+    color: $neutral-500;
+    font-size: $text-sm;
+    font-weight: $font-medium;
+  }
+
+  &__detail {
+    @include flex-center;
+    gap: $spacing-2;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      color: $primary-400;
+    }
+  }
+
+  &__footer {
+    @include flex-between;
+    margin-top: auto;
+    padding-top: $spacing-6;
+    border-top: 1px solid $neutral-100;
+  }
+
+  &__price {
+    font-size: $text-2xl;
+    font-weight: $font-bold;
+    color: $primary-600;
+    letter-spacing: -0.02em;
+
+    span {
+      font-size: $text-xs;
+      font-weight: $font-bold;
+      color: $neutral-400;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  &__btn {
+    @include button-primary;
+    padding: $spacing-2 $spacing-6;
+    font-size: $text-sm;
+    border-radius: $radius-full;
+  }
+}

@@ -1,0 +1,403 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.hotel-details {
+  min-height: 100vh;
+  background: $bg-secondary;
+  @include fade-in(400ms);
+
+  &__container {
+    @include container;
+    padding-top: $spacing-6;
+    padding-bottom: $spacing-20;
+  }
+
+  &__gallery-section {
+    margin-bottom: $spacing-12;
+  }
+
+  &__gallery {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: repeat(2, 320px);
+    gap: $spacing-3;
+    border-radius: $radius-3xl;
+    overflow: hidden;
+    box-shadow: $shadow-xl;
+
+    &--5 {
+      grid-template-columns: 2fr 1fr 1fr;
+    }
+
+    &-item {
+      position: relative;
+      overflow: hidden;
+      background: $neutral-100;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform $transition-slow;
+      }
+
+      &:hover img {
+        transform: scale(1.08);
+      }
+
+      &--large {
+        grid-row: span 2;
+      }
+    }
+  }
+
+  &__hero {
+    margin-bottom: $spacing-12;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: $spacing-8;
+    margin-bottom: $spacing-4;
+
+    .hotel-details__title-group {
+      flex: 1;
+    }
+
+    .hotel-details__name {
+      @include heading-1;
+      font-size: clamp($text-3xl, 5vw, $text-5xl);
+      color: $neutral-900;
+      margin-bottom: $spacing-3;
+      letter-spacing: -0.03em;
+    }
+
+    .hotel-details__location {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      color: $neutral-500;
+      font-size: $text-base;
+      font-weight: $font-medium;
+
+      svg {
+        color: $primary-500;
+      }
+    }
+
+    .hotel-details__rating-badge {
+      display: flex;
+      align-items: center;
+      gap: $spacing-4;
+      background: $bg-primary;
+      color: $neutral-900;
+      padding: $spacing-3 $spacing-5;
+      border-radius: $radius-2xl;
+      box-shadow: $shadow-md;
+      border: 1px solid $neutral-100;
+      transition: all $transition-base;
+      cursor: pointer;
+
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: $shadow-lg;
+        border-color: $primary-200;
+      }
+
+      .hotel-details__rating-score {
+        font-size: $text-3xl;
+        font-weight: $font-extrabold;
+        color: $primary-600;
+        line-height: 1;
+      }
+
+      .hotel-details__rating-text {
+        display: flex;
+        flex-direction: column;
+
+        .hotel-details__rating-label {
+          font-weight: $font-bold;
+          font-size: $text-sm;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: $neutral-800;
+        }
+
+        .hotel-details__rating-count {
+          font-size: $text-xs;
+          color: $neutral-400;
+          margin-top: 2px;
+        }
+      }
+    }
+  }
+
+  &__tabs {
+    display: flex;
+    gap: $spacing-10;
+    margin-bottom: $spacing-10;
+    border-bottom: 1px solid $neutral-100;
+    padding-bottom: $spacing-1;
+  }
+
+  &__tab {
+    background: none;
+    border: none;
+    padding: $spacing-3 0;
+    font-size: $text-base;
+    font-weight: $font-bold;
+    color: $neutral-400;
+    cursor: pointer;
+    transition: all $transition-base;
+    position: relative;
+
+    &.active {
+      color: $primary-600;
+
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: $primary-500;
+        border-radius: $radius-full;
+        box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+      }
+    }
+
+    &:hover:not(.active) {
+      color: $neutral-700;
+    }
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-12;
+
+    @include lg {
+      grid-template-columns: 1fr 380px;
+    }
+  }
+
+  &__main-content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-12;
+  }
+
+  &__section-card {
+    @include card-base;
+    padding: $spacing-10;
+    background: $bg-primary;
+    border: 1px solid $neutral-100;
+    box-shadow: $shadow-sm;
+
+    h2 {
+      font-size: $text-xl;
+      font-weight: $font-bold;
+      margin-bottom: $spacing-8;
+      color: $neutral-900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: $spacing-3;
+
+      &::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: $neutral-100;
+      }
+    }
+
+    .hotel-details__description {
+      color: $neutral-600;
+      line-height: 1.8;
+      font-size: $text-base;
+      font-weight: $font-medium;
+    }
+  }
+
+  &__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-8;
+
+    .contact-card {
+      @include card-base;
+      background: linear-gradient(135deg, $primary-600, $primary-800);
+      padding: $spacing-10;
+      color: white;
+      border: none;
+      position: sticky;
+      top: $spacing-8;
+      box-shadow: 0 20px 40px rgba($primary-600, 0.3);
+      @include flex-column;
+      gap: $spacing-8;
+      overflow: hidden;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 70%
+        );
+        z-index: 0;
+      }
+
+      &__header {
+        position: relative;
+        z-index: 1;
+        @include flex-column;
+        gap: $spacing-4;
+      }
+
+      &__badge {
+        width: fit-content;
+        padding: $spacing-1.5 $spacing-3;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(4px);
+        border-radius: $radius-full;
+        font-size: 10px;
+        font-weight: $font-bold;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      &__title {
+        font-size: $text-2xl;
+        font-weight: $font-extrabold;
+        margin: 0;
+        color: white;
+        letter-spacing: -0.01em;
+      }
+
+      &__subtitle {
+        font-size: $text-sm;
+        color: rgba(white, 0.7);
+        margin: 0;
+        line-height: $leading-normal;
+      }
+
+      .contact-list {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-6;
+        position: relative;
+        z-index: 1;
+      }
+
+      .contact-item {
+        display: flex;
+        align-items: center;
+        gap: $spacing-4;
+        color: rgba(white, 0.9);
+        text-decoration: none;
+        transition: all $transition-base;
+        padding: $spacing-2;
+        border-radius: $radius-xl;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.05);
+          transform: translateX(4px);
+          color: white;
+
+          .icon-box {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+            svg {
+              color: $primary-600;
+              transform: scale(1.1);
+            }
+          }
+        }
+
+        .icon-box {
+          @include flex-center;
+          width: 44px;
+          height: 44px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: $radius-lg;
+          backdrop-filter: blur(8px);
+          flex-shrink: 0;
+          transition: all $transition-base;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+
+          svg {
+            color: #ffffff;
+            width: 18px;
+            height: 18px;
+            transition: all $transition-base;
+          }
+        }
+
+        .info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+
+          label {
+            font-size: 10px;
+            font-weight: $font-bold;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(white, 0.5);
+          }
+
+          span {
+            font-weight: $font-bold;
+            font-size: $text-xs;
+            word-break: break-all;
+          }
+        }
+      }
+
+      &__btn {
+        position: relative;
+        z-index: 1;
+        @include flex-center;
+        gap: $spacing-2;
+        width: 100%;
+        padding: $spacing-4;
+        background: white;
+        color: $primary-700;
+        border: none;
+        border-radius: $radius-xl;
+        font-weight: $font-extrabold;
+        font-size: $text-sm;
+        cursor: pointer;
+        transition: all $transition-base;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+          background: $neutral-50;
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+      }
+    }
+  }
+
+  &__reviews-section {
+    @include fade-in(400ms);
+  }
+}
