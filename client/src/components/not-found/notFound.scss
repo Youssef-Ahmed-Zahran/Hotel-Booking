@@ -1,0 +1,39 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.not-found {
+  @include flex-column-center;
+  min-height: 80vh;
+  padding: $spacing-8;
+  text-align: center;
+
+  &__icon {
+    width: 200px;
+    height: 200px;
+    margin-bottom: $spacing-8;
+    color: $primary-500;
+    opacity: 0.5;
+  }
+
+  &__title {
+    @include heading-1;
+    margin-bottom: $spacing-4;
+    background: $gradient-primary;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  &__message {
+    @include body-large;
+    color: $text-secondary;
+    margin-bottom: $spacing-8;
+    max-width: 500px;
+  }
+
+  &__btn {
+    @include button-primary;
+    padding: $spacing-4 $spacing-8;
+    font-size: $text-lg;
+  }
+}
