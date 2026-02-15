@@ -1,56 +1,59 @@
 // ============= Color Palette =============
-// Primary Colors: Royal Indigo
-$primary-50: hsl(230, 80%, 97%);
-$primary-100: hsl(230, 80%, 92%);
-$primary-200: hsl(230, 75%, 85%);
-$primary-300: hsl(230, 70%, 75%);
-$primary-400: hsl(230, 65%, 65%);
-$primary-500: hsl(230, 80%, 55%); // Base Indigo
-$primary-600: hsl(230, 75%, 48%);
-$primary-700: hsl(230, 70%, 40%);
-$primary-800: hsl(230, 65%, 32%);
-$primary-900: hsl(230, 60%, 25%);
+$white: #ffffff;
+$black: #000000;
 
-// Secondary Colors: Soft Coral / Amber
-$secondary-50: hsl(14, 90%, 97%);
-$secondary-100: hsl(14, 90%, 92%);
-$secondary-200: hsl(14, 85%, 85%);
-$secondary-300: hsl(14, 80%, 75%);
-$secondary-400: hsl(14, 85%, 65%); // Base Coral
-$secondary-500: hsl(14, 90%, 55%);
-$secondary-600: hsl(14, 85%, 48%);
-$secondary-700: hsl(14, 80%, 40%);
-$secondary-800: hsl(14, 75%, 32%);
-$secondary-900: hsl(14, 70%, 25%);
+// Primary Colors: Deep Ocean Teal (Calm, Professional, Premium)
+$primary-50: hsl(190, 60%, 97%);
+$primary-100: hsl(190, 60%, 92%);
+$primary-200: hsl(190, 50%, 85%);
+$primary-300: hsl(190, 45%, 75%);
+$primary-400: hsl(190, 40%, 60%);
+$primary-500: hsl(190, 90%, 35%); // Base Deep Teal
+$primary-600: hsl(190, 85%, 30%);
+$primary-700: hsl(190, 80%, 25%);
+$primary-800: hsl(190, 75%, 20%);
+$primary-900: hsl(190, 70%, 15%);
 
-// Neutral Colors: Slate
-$neutral-50: hsl(215, 25%, 98%);
-$neutral-100: hsl(215, 20%, 95%);
-$neutral-200: hsl(215, 18%, 88%);
-$neutral-300: hsl(215, 16%, 80%);
-$neutral-400: hsl(215, 14%, 65%);
-$neutral-500: hsl(215, 12%, 50%);
-$neutral-600: hsl(215, 12%, 35%);
-$neutral-700: hsl(215, 14%, 25%);
-$neutral-800: hsl(215, 16%, 15%);
-$neutral-900: hsl(215, 25%, 10%);
+// Secondary Colors: Warm Gold / Champagne (Luxury, Welcoming)
+$secondary-50: hsl(35, 80%, 97%);
+$secondary-100: hsl(35, 80%, 92%);
+$secondary-200: hsl(35, 70%, 85%);
+$secondary-300: hsl(35, 65%, 75%);
+$secondary-400: hsl(35, 75%, 60%);
+$secondary-500: hsl(35, 80%, 50%); // Base Gold
+$secondary-600: hsl(35, 85%, 45%);
+$secondary-700: hsl(35, 90%, 40%);
+$secondary-800: hsl(35, 90%, 32%);
+$secondary-900: hsl(35, 90%, 25%);
 
-// Semantic Colors
-$success: hsl(155, 100%, 35%);
-$success-light: hsl(155, 100%, 95%);
-$warning: hsl(40, 100%, 50%);
-$warning-light: hsl(40, 100%, 94%);
-$error: hsl(0, 85%, 60%);
-$error-light: hsl(0, 85%, 96%);
-$info: hsl(210, 100%, 55%);
-$info-light: hsl(210, 100%, 95%);
+// Neutral Colors: Warm Greys / Sand (Harmonious with Gold)
+$neutral-50: hsl(40, 20%, 98%);
+$neutral-100: hsl(40, 15%, 95%);
+$neutral-200: hsl(40, 12%, 88%); // Light Sand
+$neutral-300: hsl(40, 10%, 80%);
+$neutral-400: hsl(40, 8%, 65%);
+$neutral-500: hsl(40, 6%, 50%);
+$neutral-600: hsl(40, 8%, 35%);
+$neutral-700: hsl(210, 15%, 25%); // Darker elements can stay cooler for contrast
+$neutral-800: hsl(210, 20%, 15%);
+$neutral-900: hsl(210, 25%, 10%);
+
+// Semantic Colors - Muted for elegance
+$success: hsl(150, 60%, 35%);
+$success-light: hsl(150, 60%, 95%);
+$warning: hsl(35, 85%, 55%);
+$warning-light: hsl(35, 85%, 94%);
+$error: hsl(355, 75%, 55%);
+$error-light: hsl(355, 75%, 96%);
+$info: hsl(200, 80%, 45%);
+$info-light: hsl(200, 80%, 95%);
 
 // Background Colors
 $bg-primary: #ffffff;
 $bg-secondary: $neutral-50;
 $bg-tertiary: $neutral-100;
 $bg-dark: $neutral-900;
-$bg-overlay: rgba(15, 23, 42, 0.6);
+$bg-overlay: rgba(15, 23, 42, 0.7);
 
 // Text Colors
 $text-primary: $neutral-900;
@@ -132,8 +135,8 @@ $shadow-2xl: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
 $shadow-inner: inset 0 2px 4px 0 rgba(15, 23, 42, 0.05);
 
 // Colored Shadows
-$shadow-primary: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
-$shadow-secondary: 0 10px 25px -5px rgba(235, 94, 65, 0.3);
+$shadow-primary: 0 10px 25px -5px rgba(20, 100, 120, 0.3); // Deep Teal shadow
+$shadow-secondary: 0 10px 25px -5px rgba(220, 160, 50, 0.25); // Gold shadow
 
 // ============= Transitions =============
 $transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -167,29 +170,19 @@ $container-2xl: 1400px;
 
 // ============= Gradients =============
 $gradient-primary: linear-gradient(135deg, $primary-500 0%, $primary-700 100%);
-$gradient-secondary: linear-gradient(
-  135deg,
-  $secondary-400 0%,
-  $secondary-600 100%
-);
-$gradient-sunset: linear-gradient(
-  135deg,
-  hsl(340, 82%, 52%) 0%,
-  hsl(25, 95%, 53%) 100%
-);
-$gradient-ocean: linear-gradient(
-  135deg,
-  hsl(195, 100%, 50%) 0%,
-  hsl(210, 100%, 50%) 100%
-);
-$gradient-luxury: linear-gradient(
-  135deg,
-  $neutral-900 0%,
-  $neutral-700 50%,
-  $secondary-700 100%
-);
-$gradient-overlay: linear-gradient(
-  180deg,
-  rgba(0, 0, 0, 0) 0%,
-  rgba(0, 0, 0, 0.7) 100%
-);
+$gradient-secondary: linear-gradient(135deg,
+    $secondary-400 0%,
+    $secondary-600 100%);
+$gradient-sunset: linear-gradient(135deg,
+    hsl(35, 80%, 55%) 0%,
+    hsl(15, 85%, 60%) 100%); // Golden Sunset
+$gradient-ocean: linear-gradient(135deg,
+    hsl(190, 90%, 35%) 0%,
+    hsl(210, 80%, 40%) 100%); // Deep Ocean
+$gradient-luxury: linear-gradient(135deg,
+    $neutral-900 0%,
+    $primary-800 50%,
+    $secondary-700 100%);
+$gradient-overlay: linear-gradient(180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.7) 100%);
