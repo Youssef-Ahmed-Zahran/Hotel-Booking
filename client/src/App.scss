@@ -1,0 +1,13 @@
+@use './styles/variables' as *;
+@use './styles/mixins' as *;
+
+.app-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.app-content {
+    flex: 1;
+    width: 100%;
+}
