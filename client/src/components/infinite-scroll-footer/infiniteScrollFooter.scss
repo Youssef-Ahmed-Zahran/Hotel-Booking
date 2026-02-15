@@ -1,0 +1,65 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.infinite-scroll-footer {
+  width: 100%;
+  padding: $spacing-8 0;
+  @include flex-center;
+  flex-direction: column;
+  min-height: 80px;
+
+  &__loading {
+    @include flex-center;
+    gap: $spacing-3;
+    color: $primary-600;
+    font-weight: $font-semibold;
+  }
+
+  &__spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid $primary-100;
+    border-top-color: $primary-500;
+    border-radius: 50%;
+    animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  &__text {
+    font-size: $text-sm;
+    color: $neutral-600;
+  }
+
+  &__end-message {
+    font-size: $text-sm;
+    color: $neutral-400;
+    font-weight: $font-medium;
+    text-align: center;
+    padding: $spacing-4;
+    position: relative;
+    width: 100%;
+
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 30px;
+      height: 1px;
+      background-color: $neutral-200;
+    }
+
+    &::before {
+      right: calc(50% + 100px);
+    }
+
+    &::after {
+      left: calc(50% + 100px);
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
