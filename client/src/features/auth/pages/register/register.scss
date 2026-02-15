@@ -1,0 +1,13 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+.register {
+    min-height: 100vh;
+    @include flex-center;
+    background: linear-gradient(135deg, $secondary-50 0%, $primary-50 100%);
+    padding: $spacing-8 $spacing-4;
+
+    &__container {
+        width: 100%;
+    }
+}

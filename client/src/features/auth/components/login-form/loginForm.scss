@@ -1,0 +1,115 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.login-form {
+  width: 100%;
+  max-width: 450px;
+  margin: 0 auto;
+  padding: $spacing-8;
+  background: $bg-primary;
+  border-radius: $radius-2xl;
+  box-shadow: $shadow-2xl;
+
+  &__header {
+    text-align: center;
+    margin-bottom: $spacing-8;
+  }
+
+  &__title {
+    @include heading-3;
+    margin-bottom: $spacing-2;
+    background: $gradient-primary;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  &__subtitle {
+    color: $text-secondary;
+  }
+
+  &__form {
+    @include flex-column;
+    gap: $spacing-5;
+  }
+
+  &__field {
+    @include flex-column;
+    gap: $spacing-2;
+  }
+
+  &__label {
+    font-weight: $font-medium;
+    color: $text-primary;
+  }
+
+  &__input {
+    @include input-base;
+  }
+
+  &__error {
+    color: $error;
+    font-size: $text-sm;
+    margin-top: $spacing-1;
+  }
+
+  &__forgot {
+    text-align: right;
+    font-size: $text-sm;
+    color: $primary-600;
+    text-decoration: none;
+    transition: color $transition-base;
+
+    &:hover {
+      color: $primary-700;
+    }
+  }
+
+  &__submit {
+    @include button-primary;
+    width: 100%;
+    padding: $spacing-4;
+    font-size: $text-lg;
+    margin-top: $spacing-2;
+  }
+
+  &__divider {
+    position: relative;
+    text-align: center;
+    margin: $spacing-6 0;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: $border-light;
+    }
+
+    span {
+      position: relative;
+      padding: 0 $spacing-4;
+      background: $bg-primary;
+      color: $text-tertiary;
+      font-size: $text-sm;
+    }
+  }
+
+  &__footer {
+    text-align: center;
+    margin-top: $spacing-6;
+    color: $text-secondary;
+
+    a {
+      color: $primary-600;
+      font-weight: $font-medium;
+      text-decoration: none;
+
+      &:hover {
+        color: $primary-700;
+      }
+    }
+  }
+}

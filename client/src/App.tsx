@@ -10,6 +10,10 @@ import Footer from "./components/footer/Footer";
 import NotFound from "./components/not-found/NotFound";
 import ErrorBoundary from "./components/error-boundary/ErrorBoundary";
 
+// Pages
+import Login from "./features/auth/pages/login/Login";
+import Register from "./features/auth/pages/register/Register";
+
 function App() {
   return (
     <BrowserRouter>
@@ -21,7 +25,10 @@ function App() {
               {/* Public routes */}
 
               {/* Auth routes */}
-              <Route element={<AuthRoute />}></Route>
+              <Route element={<AuthRoute />}>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+              </Route>
 
               {/* Protected routes */}
               <Route element={<PrivateRoute />}></Route>
