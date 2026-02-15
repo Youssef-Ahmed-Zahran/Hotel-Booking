@@ -1,5 +1,5 @@
-function Bookings() {
-  return <div>Booking</div>;
+function MyBookings() {
+  return <div>MyBookings</div>;
 }
 
-export default Bookings;
+export default MyBookings;

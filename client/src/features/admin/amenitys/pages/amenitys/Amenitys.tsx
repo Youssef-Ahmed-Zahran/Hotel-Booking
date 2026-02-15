@@ -1,5 +1,5 @@
-function amenitys() {
-  return <div>amenitys</div>;
+function Amenitys() {
+  return <div>Amenitys</div>;
 }
 
-export default amenitys;
+export default Amenitys;

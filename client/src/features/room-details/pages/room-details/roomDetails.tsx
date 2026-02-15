@@ -1,5 +1,5 @@
-function roomDetails() {
-  return <div>roomDetails</div>;
+function RoomDetails() {
+  return <div>RoomDetails</div>;
 }
 
-export default roomDetails;
+export default RoomDetails;
