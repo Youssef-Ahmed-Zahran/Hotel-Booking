@@ -1,0 +1,221 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.landing {
+  position: relative;
+  min-height: 95vh;
+  @include flex-column-center;
+  text-align: center;
+  padding: $spacing-12 $spacing-4;
+  color: $text-inverse;
+  overflow: hidden;
+
+  // Video Background
+  &__video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  // Modern Multi-layered Overlay
+  &__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      rgba(30, 41, 59, 0.4) 0%,
+      rgba(15, 23, 42, 0.6) 50%,
+      rgba(15, 23, 42, 0.8) 100%
+    );
+    z-index: 1;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        135deg,
+        rgba(99, 102, 241, 0.2) 0%,
+        transparent 50%,
+        rgba(235, 94, 65, 0.1) 100%
+      );
+    }
+  }
+
+  &::before {
+    content: "";
+    @include overlay;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+    z-index: 2;
+  }
+
+  &__content {
+    position: relative;
+    z-index: 3;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  &__title {
+    font-family: $font-secondary;
+    font-size: clamp($text-4xl, 8vw, $text-7xl);
+    font-weight: $font-extrabold;
+    line-height: $leading-tight;
+    margin-bottom: $spacing-6;
+    color: $text-inverse;
+    letter-spacing: -0.03em;
+    @include slide-up;
+
+    span {
+      background: $gradient-secondary;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: inline-block;
+      filter: drop-shadow(0 0 20px rgba(235, 94, 65, 0.3));
+    }
+  }
+
+  &__subtitle {
+    font-family: $font-primary;
+    font-size: $text-xl;
+    font-weight: $font-medium;
+    color: $neutral-200;
+    margin-bottom: $spacing-12;
+    line-height: $leading-relaxed;
+    max-width: 60ch;
+    margin-left: auto;
+    margin-right: auto;
+    animation: slideUp 0.8s ease-out 0.2s both;
+  }
+
+  &__search {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: $radius-3xl;
+    padding: $spacing-4;
+    box-shadow: $shadow-2xl, 0 0 0 1px rgba(255, 255, 255, 0.1);
+    animation: slideUp 0.8s ease-out 0.4s both;
+    max-width: 900px;
+    margin: 0 auto;
+
+    @include respond-to(md) {
+      padding: $spacing-3;
+      border-radius: $radius-full;
+    }
+  }
+
+  &__search-form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+
+    @include respond-to(md) {
+      flex-direction: row;
+    }
+  }
+
+  &__search-field {
+    @include flex-column;
+    flex: 1;
+    padding: $spacing-4 $spacing-6;
+    text-align: left;
+    border-radius: $radius-2xl;
+    transition: all $transition-base;
+
+    @include respond-to(md) {
+      border-radius: $radius-full;
+    }
+
+    &:focus-within {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  &__search-label {
+    font-size: $text-xs;
+    font-weight: $font-bold;
+    color: $primary-200;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: $spacing-1;
+  }
+
+  &__search-input {
+    background: transparent;
+    border: none;
+    color: $text-inverse;
+    font-size: $text-base;
+    font-weight: $font-medium;
+    padding: 0;
+    width: 100%;
+
+    &::placeholder {
+      color: $neutral-400;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &__search-btn {
+    @include button-primary;
+    padding: $spacing-4 $spacing-10;
+    border-radius: $radius-2xl;
+    font-size: $text-base;
+    font-weight: $font-bold;
+
+    @include respond-to(md) {
+      border-radius: $radius-full;
+    }
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-12;
+    margin-top: $spacing-20;
+    padding: $spacing-8;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: $radius-3xl;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: fadeIn 1s ease-out 0.6s both;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  &__stat {
+    @include flex-column;
+    gap: $spacing-1;
+  }
+
+  &__stat-number {
+    font-size: $text-4xl;
+    font-weight: $font-extrabold;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+  }
+
+  &__stat-label {
+    font-size: $text-xs;
+    font-weight: $font-bold;
+    color: $neutral-400;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+}

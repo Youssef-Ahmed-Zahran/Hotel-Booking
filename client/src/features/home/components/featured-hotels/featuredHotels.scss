@@ -1,0 +1,153 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.featured-hotels {
+  @include section-padding;
+  background: $neutral-50;
+  position: relative;
+
+  &__container {
+    @include container;
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: $spacing-16;
+  }
+
+  &__title {
+    @include heading-2;
+    margin-bottom: $spacing-4;
+    color: $neutral-900;
+    letter-spacing: -0.02em;
+  }
+
+  &__subtitle {
+    @include body-large;
+    color: $neutral-500;
+    max-width: 60ch;
+    margin: 0 auto;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-8;
+
+    @include respond-to(md) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include respond-to(lg) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  &__card {
+    @include card-base;
+    @include hover-lift;
+    background: $bg-primary;
+    border: 1px solid $neutral-100;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  &__image-wrapper {
+    position: relative;
+    @include aspect-ratio(16, 11);
+    overflow: hidden;
+  }
+
+  &__image {
+    @include overlay;
+    object-fit: cover;
+    transition: transform $transition-slow;
+  }
+
+  &__card:hover &__image {
+    transform: scale(1.1);
+  }
+
+  &__content {
+    padding: $spacing-6;
+  }
+
+  &__name {
+    font-size: $text-xl;
+    font-weight: $font-bold;
+    color: $neutral-900;
+    margin-bottom: $spacing-2;
+    @include line-clamp(1);
+  }
+
+  &__location {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    color: $neutral-500;
+    font-size: $text-sm;
+    font-weight: $font-medium;
+    margin-bottom: $spacing-4;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      color: $primary-500;
+    }
+  }
+
+  &__description {
+    color: $neutral-500;
+    font-size: $text-sm;
+    line-height: $leading-relaxed;
+    margin-bottom: $spacing-6;
+    @include line-clamp(2);
+  }
+
+  &__footer {
+    @include flex-between;
+    padding-top: $spacing-5;
+    border-top: 1px solid $neutral-100;
+  }
+
+  &__rating {
+    @include flex-center;
+    gap: $spacing-1.5;
+    font-weight: $font-bold;
+    color: $neutral-800;
+
+    svg {
+      width: 18px;
+      height: 18px;
+      fill: $secondary-500;
+    }
+  }
+
+  &__cta {
+    @include button-ghost;
+    padding: $spacing-2 $spacing-4;
+    font-size: $text-sm;
+    font-weight: $font-bold;
+    color: $primary-600;
+
+    &:hover {
+      color: $primary-700;
+      background: $primary-50;
+    }
+  }
+
+  &__error,
+  &__empty {
+    text-align: center;
+    padding: $spacing-20;
+    background: $bg-primary;
+    border-radius: $radius-2xl;
+    border: 1px dashed $neutral-300;
+    color: $neutral-500;
+  }
+
+  &__error {
+    color: $error;
+    border-color: $error-light;
+  }
+}
