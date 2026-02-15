@@ -1,0 +1,330 @@
+@use "./styles/variables" as *;
+@use "./styles/mixins" as *;
+
+// ============= Reset & Base Styles =============
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: $font-primary;
+  font-size: $text-base;
+  font-weight: $font-normal;
+  line-height: $leading-normal;
+  color: $text-primary;
+  background: $bg-secondary;
+  min-height: 100vh;
+}
+
+// ============= Typography =============
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: $font-semibold;
+  line-height: $leading-tight;
+  color: $text-primary;
+}
+
+h1 {
+  @include heading-1;
+}
+
+h2 {
+  @include heading-2;
+}
+
+h3 {
+  @include heading-3;
+}
+
+h4 {
+  @include heading-4;
+}
+
+p {
+  margin: 0;
+  @include body-base;
+}
+
+a {
+  color: $primary-600;
+  text-decoration: none;
+  transition: color $transition-base;
+
+  &:hover {
+    color: $primary-700;
+  }
+}
+
+// ============= Lists =============
+ul,
+ol {
+  list-style: none;
+}
+
+// ============= Images =============
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+// ============= Buttons =============
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+// ============= Forms =============
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+// ============= Utility Classes =============
+.container {
+  @include container;
+}
+
+.section-padding {
+  @include section-padding;
+}
+
+// Text Utilities
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-primary {
+  color: $text-primary;
+}
+
+.text-secondary {
+  color: $text-secondary;
+}
+
+.text-tertiary {
+  color: $text-tertiary;
+}
+
+.text-inverse {
+  color: $text-inverse;
+}
+
+.font-light {
+  font-weight: $font-light;
+}
+
+.font-normal {
+  font-weight: $font-normal;
+}
+
+.font-medium {
+  font-weight: $font-medium;
+}
+
+.font-semibold {
+  font-weight: $font-semibold;
+}
+
+.font-bold {
+  font-weight: $font-bold;
+}
+
+.truncate {
+  @include truncate;
+}
+
+.line-clamp-2 {
+  @include line-clamp(2);
+}
+
+.line-clamp-3 {
+  @include line-clamp(3);
+}
+
+// Spacing Utilities
+.mt-auto {
+  margin-top: auto;
+}
+
+.mb-auto {
+  margin-bottom: auto;
+}
+
+.ml-auto {
+  margin-left: auto;
+}
+
+.mr-auto {
+  margin-right: auto;
+}
+
+// Flex Utilities
+.flex {
+  display: flex;
+}
+
+.flex-center {
+  @include flex-center;
+}
+
+.flex-between {
+  @include flex-between;
+}
+
+.flex-column {
+  @include flex-column;
+}
+
+.flex-column-center {
+  @include flex-column-center;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.gap-1 {
+  gap: $spacing-1;
+}
+
+.gap-2 {
+  gap: $spacing-2;
+}
+
+.gap-3 {
+  gap: $spacing-3;
+}
+
+.gap-4 {
+  gap: $spacing-4;
+}
+
+.gap-6 {
+  gap: $spacing-6;
+}
+
+.gap-8 {
+  gap: $spacing-8;
+}
+
+// Grid Utilities
+.grid {
+  display: grid;
+}
+
+.grid-cols-1 {
+  grid-template-columns: repeat(1, 1fr);
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+// Display Utilities
+.hidden {
+  display: none;
+}
+
+.block {
+  display: block;
+}
+
+.inline-block {
+  display: inline-block;
+}
+
+// Position Utilities
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.fixed {
+  position: fixed;
+}
+
+.sticky {
+  position: sticky;
+}
+
+// Overflow Utilities
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-auto {
+  overflow: auto;
+}
+
+.overflow-scroll {
+  overflow: scroll;
+}
+
+// ============= Animation Classes =============
+.fade-in {
+  @include fade-in;
+}
+
+.slide-up {
+  @include slide-up;
+}
+
+.scale-in {
+  @include scale-in;
+}
+
+// ============= Custom Scrollbar =============
+* {
+  @include scrollbar-custom;
+}
+
+// ============= Selection =============
+::selection {
+  background: $primary-100;
+  color: $primary-900;
+}
+
+::-moz-selection {
+  background: $primary-100;
+  color: $primary-900;
+}
