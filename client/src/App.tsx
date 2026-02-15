@@ -26,6 +26,11 @@ import Profile from "./features/profile/pages/profile/Profile";
 // Admin pages
 import Dashboard from "./features/admin/dashboard/pages/dashboard/Dashboard";
 import AdminHotels from "./features/admin/hotels/pages/hotels/Hotels";
+import CreateHotel from "./features/admin/hotels/components/create-hotels/CreateHotels";
+import UpdateHotel from "./features/admin/hotels/components/update-hotels/UpdateHotels";
+import AdminApartments from "./features/admin/apartments/pages/apartments/Apartments";
+import CreateApartments from "./features/admin/apartments/components/create-apartments/CreateApartments";
+import UpdateApartments from "./features/admin/apartments/components/update-apartments/UpdateApartments";
 
 function App() {
   return (
@@ -63,6 +68,28 @@ function App() {
               <Route element={<AdminRoute />}>
                 <Route path="/admin/dashboard" element={<Dashboard />} />
                 <Route path="/admin/hotels" element={<AdminHotels />} />
+                <Route
+                  path="/admin/hotels/new"
+                  element={<CreateHotel onClose={() => {}} />}
+                />
+                <Route
+                  path="/admin/hotels/:id/edit"
+                  element={<UpdateHotel hotel={{} as any} onClose={() => {}} />}
+                />
+                <Route path="/admin/apartments" element={<AdminApartments />} />
+                <Route
+                  path="/admin/apartments/new"
+                  element={<CreateApartments onClose={() => {}} />}
+                />
+                <Route
+                  path="/admin/apartments/:id/edit"
+                  element={
+                    <UpdateApartments
+                      apartment={{} as any}
+                      onClose={() => {}}
+                    />
+                  }
+                />
               </Route>
 
               {/* 404 */}
