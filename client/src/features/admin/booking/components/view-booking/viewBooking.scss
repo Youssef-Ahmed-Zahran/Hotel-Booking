@@ -1,0 +1,135 @@
+.view-booking-modal {
+  max-width: 800px !important;
+  width: 90% !important;
+
+  .modal-body {
+    padding: 1.5rem;
+    max-height: 70vh;
+    overflow-y: auto;
+
+    .info-section {
+      margin-bottom: 2rem;
+
+      h3 {
+        font-size: 1.1rem;
+        color: #333;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #efefef;
+        font-weight: 600;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+
+        .info-item {
+          label {
+            display: block;
+            font-size: 0.8rem;
+            color: #777;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+            letter-spacing: 0.5px;
+          }
+
+          p {
+            font-size: 1rem;
+            color: #333;
+            font-weight: 500;
+            margin: 0;
+          }
+
+          .id-text {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #555;
+            word-break: break-all;
+          }
+
+          .amount {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            font-weight: 700;
+          }
+        }
+      }
+    }
+  }
+
+  .modal-footer {
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid #eee;
+
+    .close-btn-footer {
+      padding: 0.6rem 1.5rem;
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      color: #555;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #e9ecef;
+        border-color: #ccc;
+      }
+    }
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    &.pending {
+      background: #fff8e1;
+      color: #f59e0b;
+    }
+
+    &.confirmed {
+      background: #e8f5e9;
+      color: #10b981;
+    }
+
+    &.cancelled {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+
+    &.completed {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+  }
+
+  .payment-badge {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+
+    &.pending {
+      color: #f59e0b;
+    }
+
+    &.completed {
+      color: #10b981;
+    }
+
+    &.failed {
+      color: #ef4444;
+    }
+
+    &.refunded {
+      color: #6b7280;
+    }
+  }
+}

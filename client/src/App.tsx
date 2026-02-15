@@ -33,6 +33,8 @@ import CreateApartments from "./features/admin/apartments/components/create-apar
 import UpdateApartments from "./features/admin/apartments/components/update-apartments/UpdateApartments";
 import AdminRooms from "./features/admin/rooms/pages/rooms/Rooms";
 import AdminAmenitys from "./features/admin/amenitys/pages/amenitys/Amenitys";
+import AdminBooking from "./features/admin/booking/pages/booking/Booking";
+import AdminReviews from "./features/admin/reviews/pages/reviews/Reviews";
 
 function App() {
   return (
@@ -94,6 +96,8 @@ function App() {
                 />
                 <Route path="/admin/rooms" element={<AdminRooms />} />
                 <Route path="/admin/amenities" element={<AdminAmenitys />} />
+                <Route path="/admin/bookings" element={<AdminBooking />} />
+                <Route path="/admin/reviews" element={<AdminReviews />} />
               </Route>
 
               {/* 404 */}

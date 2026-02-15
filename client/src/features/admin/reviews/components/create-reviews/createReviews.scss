@@ -1,0 +1,92 @@
+.create-review-form {
+  h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #333;
+  }
+
+  .error-message {
+    background-color: #fee;
+    color: #c0392b;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .grid-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #555;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+
+      &:focus {
+        border-color: #3498db;
+        outline: none;
+      }
+    }
+
+    textarea {
+      resize: vertical;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+
+    button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 1rem;
+
+      &.cancel-btn {
+        background-color: #f5f5f5;
+        color: #666;
+
+        &:hover {
+          background-color: #eee;
+        }
+      }
+
+      &.submit-btn {
+        background-color: #4caf50;
+        color: white;
+
+        &:disabled {
+          background-color: #a5d6a7;
+          cursor: wait;
+        }
+
+        &:hover:not(:disabled) {
+          background-color: #45a049;
+        }
+      }
+    }
+  }
+}
