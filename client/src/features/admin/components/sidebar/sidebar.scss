@@ -1,0 +1,93 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.admin-sidebar {
+  width: 280px;
+  height: calc(100vh - 80px);
+  background: $bg-primary;
+  border-right: 1px solid $border-light;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 80px;
+
+  &__header {
+    padding: $spacing-6;
+    border-bottom: 1px solid $border-light;
+  }
+
+  &__title {
+    @include heading-4;
+    color: $text-primary;
+  }
+
+  &__nav {
+    padding: $spacing-4;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+    overflow-y: auto;
+    @include scrollbar-custom;
+  }
+
+  &__link {
+    @include flex-center;
+    justify-content: flex-start;
+    gap: $spacing-3;
+    padding: $spacing-3 $spacing-4;
+    border-radius: $radius-lg;
+    color: $text-secondary;
+    font-weight: $font-medium;
+    transition: all $transition-base;
+    text-decoration: none;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    &:hover {
+      background: $neutral-100;
+      color: $text-primary;
+    }
+
+    &.active {
+      background: $primary-50;
+      color: $primary-600;
+
+      svg {
+        fill: $primary-600;
+      }
+    }
+  }
+
+  &__footer {
+    margin-top: auto;
+    padding: $spacing-4;
+    border-top: 1px solid $border-light;
+  }
+
+  &__user {
+    @include flex-center;
+    gap: $spacing-3;
+    padding: $spacing-3;
+    background: $neutral-50;
+    border-radius: $radius-lg;
+  }
+
+  &__user-info {
+    @include flex-column;
+  }
+
+  &__user-name {
+    font-size: $text-sm;
+    font-weight: $font-bold;
+    color: $text-primary;
+  }
+
+  &__user-role {
+    font-size: $text-xs;
+    color: $text-secondary;
+  }
+}
