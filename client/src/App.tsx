@@ -31,6 +31,7 @@ import UpdateHotel from "./features/admin/hotels/components/update-hotels/Update
 import AdminApartments from "./features/admin/apartments/pages/apartments/Apartments";
 import CreateApartments from "./features/admin/apartments/components/create-apartments/CreateApartments";
 import UpdateApartments from "./features/admin/apartments/components/update-apartments/UpdateApartments";
+import AdminRooms from "./features/admin/rooms/pages/rooms/Rooms";
 
 function App() {
   return (
@@ -90,6 +91,7 @@ function App() {
                     />
                   }
                 />
+                <Route path="/admin/rooms" element={<AdminRooms />} />
               </Route>
 
               {/* 404 */}
