@@ -557,6 +557,11 @@ export const cancelBooking = async (req, res, next) => {
       throw new ApiError(400, "Cannot cancel a completed booking");
     }
 
+    // Check ownership or admin
+    if (booking.userId !== req.user.id && req.user.role !== "ADMIN") {
+      throw new ApiError(403, "You are not authorized to cancel this booking");
+    }
+
     // Update booking status to cancelled
     const updatedBooking = await prisma.booking.update({
       where: { id },

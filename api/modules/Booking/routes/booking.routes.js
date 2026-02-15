@@ -12,6 +12,7 @@ import {
   getGlobalBookingStats,
 } from "../controllers/booking.controller.js";
 import {
+  verifyToken,
   verifyTokenAndAdmin,
   verifyTokenAndAuthorization,
 } from "../../../middlewares/verifyToken.middleware.js";
@@ -28,7 +29,7 @@ router.get("/stats", verifyTokenAndAdmin, getGlobalBookingStats);
 router.get("/", verifyTokenAndAuthorization, getAllBookings);
 router.get("/:id", verifyTokenAndAuthorization, getBookingById);
 router.patch("/:id/status", verifyTokenAndAdmin, updateBookingStatus);
-router.delete("/:id", verifyTokenAndAuthorization, cancelBooking);
+router.delete("/:id", verifyToken, cancelBooking);
 
 // User and hotel specific routes
 router.get("/users/:userId/bookings", getUserBookings);
