@@ -14,6 +14,7 @@ import ErrorBoundary from "./components/error-boundary/ErrorBoundary";
 import Login from "./features/auth/pages/login/Login";
 import Register from "./features/auth/pages/register/Register";
 import Home from "./features/home/pages/Home";
+import Hotels from "./features/hotels/pages/hotels/Hotels";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Home />} />
+              <Route path="/hotels" element={<Hotels />} />
 
               {/* Auth routes */}
               <Route element={<AuthRoute />}>

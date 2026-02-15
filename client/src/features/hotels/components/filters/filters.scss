@@ -1,0 +1,189 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.filters {
+  background: $bg-primary;
+  padding: $spacing-6;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-md;
+  border: 1px solid $neutral-100;
+
+  &__title {
+    font-size: $text-xl;
+    font-weight: $font-bold;
+    margin-bottom: $spacing-6;
+    padding-bottom: $spacing-4;
+    border-bottom: 2px solid $neutral-50;
+    color: $neutral-900;
+  }
+
+  &__section {
+    margin-bottom: $spacing-8;
+
+    &:last-of-type {
+      margin-bottom: $spacing-6;
+    }
+  }
+
+  &__section-title {
+    font-size: $text-sm;
+    font-weight: $font-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $neutral-500;
+    margin-bottom: $spacing-4;
+  }
+
+  &__field {
+    @include flex-column;
+    gap: $spacing-2;
+    margin-bottom: $spacing-4;
+  }
+
+  &__label {
+    font-size: $text-xs;
+    font-weight: $font-bold;
+    color: $neutral-600;
+  }
+
+  &__input {
+    @include input-base;
+    padding: $spacing-2.5 $spacing-4;
+    font-size: $text-sm;
+    border-radius: $radius-md;
+  }
+
+  &__rating {
+    display: flex;
+    gap: $spacing-3;
+  }
+
+  &__rating-btn {
+    @include flex-center;
+    flex: 1;
+    padding: $spacing-2.5;
+    border: 1px solid $neutral-200;
+    border-radius: $radius-lg;
+    background: $bg-primary;
+    color: $neutral-600;
+    font-size: $text-sm;
+    font-weight: $font-semibold;
+    cursor: pointer;
+    transition: all $transition-base;
+
+    &:hover {
+      border-color: $primary-300;
+      color: $primary-600;
+      background: $primary-50;
+    }
+
+    &.active {
+      background: $gradient-primary;
+      border-color: transparent;
+      color: $text-inverse;
+      box-shadow: $shadow-primary;
+    }
+  }
+
+  &__amenities {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+    max-height: 240px;
+    overflow-y: auto;
+    padding-right: $spacing-2;
+    @include scrollbar-custom;
+  }
+
+  &__checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    cursor: pointer;
+    user-select: none;
+    font-size: $text-sm;
+    font-weight: $font-medium;
+    color: $neutral-600;
+    transition: all $transition-base;
+
+    &:hover {
+      color: $primary-600;
+
+      .filters__checkbox {
+        border-color: $primary-300;
+      }
+    }
+  }
+
+  &__checkbox {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid $neutral-300;
+    border-radius: $radius-sm;
+    position: relative;
+    cursor: pointer;
+    transition: all $transition-base;
+    background: $bg-primary;
+
+    &:checked {
+      background: $primary-500;
+      border-color: $primary-500;
+      box-shadow: $shadow-sm;
+
+      &::after {
+        content: "";
+        position: absolute;
+        left: 6px;
+        top: 2px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2.5px 2.5px 0;
+        transform: rotate(45deg);
+      }
+    }
+
+    &:focus {
+      @include input-focus;
+    }
+  }
+
+  &__no-data {
+    color: $neutral-400;
+    font-size: $text-sm;
+    font-style: italic;
+    text-align: center;
+    padding: $spacing-4;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+    padding-top: $spacing-2;
+  }
+
+  &__btn {
+    @include button-base;
+    width: 100%;
+    padding: $spacing-3;
+    font-size: $text-sm;
+    border-radius: $radius-lg;
+
+    &--apply {
+      @include button-primary;
+    }
+
+    &--clear {
+      @include button-ghost;
+      color: $neutral-500;
+      font-weight: $font-semibold;
+
+      &:hover {
+        background: $neutral-50;
+        color: $neutral-700;
+      }
+    }
+  }
+}
