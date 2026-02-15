@@ -52,7 +52,6 @@ function App() {
                   path="/booking-confirmation"
                   element={<BookingConfirmationPage />}
                 />
-
                 <Route path="/profile" element={<Profile />} />
               </Route>
 

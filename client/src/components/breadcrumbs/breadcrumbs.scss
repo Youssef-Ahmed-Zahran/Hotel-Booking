@@ -1,0 +1,43 @@
+@use "../../styles/variables" as *;
+
+.breadcrumbs {
+  margin-bottom: $spacing-6;
+
+  &__list {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    font-size: $text-sm;
+    color: $text-secondary;
+  }
+
+  &__link {
+    color: $text-secondary;
+    text-decoration: none;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $primary-600;
+    }
+  }
+
+  &__separator {
+    margin: 0 $spacing-2;
+    color: $text-tertiary;
+    font-weight: $font-light;
+  }
+
+  &__current {
+    color: $text-primary;
+    font-weight: $font-medium;
+  }
+}
