@@ -1,0 +1,280 @@
+@use "../../../../../styles/variables" as *;
+@use "../../../../../styles/mixins" as *;
+
+.amenities-container {
+  padding: $spacing-6;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .amenities-header {
+    @include flex-between;
+    margin-bottom: $spacing-8;
+    flex-wrap: wrap;
+    gap: $spacing-4;
+
+    .header-content {
+      h1 {
+        font-size: $text-2xl;
+        color: $text-primary;
+        margin-bottom: $spacing-2;
+        font-weight: $font-bold;
+      }
+
+      p {
+        color: $text-secondary;
+        font-size: $text-base;
+      }
+    }
+
+    .btn-primary {
+      @include flex-center;
+      gap: $spacing-2;
+      padding: $spacing-3 $spacing-6;
+      background: linear-gradient(135deg, $primary-600, $primary-500);
+      color: white;
+      border: none;
+      border-radius: $radius-lg;
+      font-weight: $font-semibold;
+      transition: all $transition-base;
+      box-shadow: $shadow-md;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: $shadow-lg;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+    }
+  }
+
+  .controls-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: $spacing-4;
+    margin-bottom: $spacing-8;
+    background: white;
+    padding: $spacing-4;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-sm;
+
+    .select-wrapper,
+    .search-wrapper {
+      position: relative;
+    }
+
+    .room-select,
+    .search-input {
+      width: 100%;
+      padding: $spacing-3;
+      border: 1px solid $neutral-200;
+      border-radius: $radius-md;
+      font-size: $text-base;
+      transition: border-color $transition-base;
+      background: white;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-500;
+        box-shadow: 0 0 0 3px rgba($primary-500, 0.1);
+      }
+
+      &:disabled {
+        background-color: $neutral-50;
+        cursor: not-allowed;
+      }
+    }
+
+    .search-wrapper {
+      .search-icon {
+        position: absolute;
+        left: $spacing-3;
+        top: 50%;
+        transform: translateY(-50%);
+        color: $text-tertiary;
+      }
+
+      .search-input {
+        padding-left: $spacing-10;
+      }
+    }
+  }
+
+  .content-area {
+    min-height: 400px;
+    position: relative;
+
+    .empty-state {
+      @include flex-column-center;
+      padding: $spacing-12;
+      text-align: center;
+      background: white;
+      border-radius: $radius-lg;
+      border: 2px dashed $neutral-200;
+
+      .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: $spacing-4;
+        opacity: 0.8;
+      }
+
+      h3 {
+        font-size: $text-xl;
+        color: $text-primary;
+        margin-bottom: $spacing-2;
+      }
+
+      p {
+        color: $text-secondary;
+        max-width: 400px;
+      }
+    }
+
+    .amenities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: $spacing-6;
+
+      .amenity-card {
+        background: white;
+        border-radius: $radius-lg;
+        padding: $spacing-6;
+        box-shadow: $shadow-sm;
+        border: 1px solid $neutral-100;
+        transition: all $transition-base;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 4px;
+          height: 100%;
+          background: $primary-500;
+          opacity: 0;
+          transition: opacity $transition-base;
+        }
+
+        &:hover {
+          transform: translateY(-4px);
+          box-shadow: $shadow-md;
+          border-color: transparent;
+
+          &::before {
+            opacity: 1;
+          }
+        }
+
+        .card-content {
+          margin-bottom: $spacing-4;
+
+          .amenity-name {
+            font-size: $text-lg;
+            color: $text-primary;
+            margin-bottom: $spacing-2;
+          }
+
+          .amenity-description {
+            color: $text-secondary;
+            font-size: $text-sm;
+            line-height: $leading-relaxed;
+            @include line-clamp(3);
+          }
+        }
+
+        .card-actions {
+          @include flex-between;
+          justify-content: flex-end;
+          gap: $spacing-2;
+          padding-top: $spacing-4;
+          border-top: 1px solid $neutral-100;
+
+          .icon-btn {
+            padding: $spacing-2;
+            border-radius: $radius-md;
+            transition: all $transition-base;
+            color: $text-secondary;
+            font-size: 1.1rem;
+
+            &:hover {
+              background-color: $neutral-50;
+            }
+
+            &.edit:hover {
+              color: $info;
+              background-color: $info-light;
+            }
+
+            &.delete:hover {
+              color: $error;
+              background-color: $error-light;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+
+    .modal-content {
+      background: white;
+      padding: $spacing-8;
+      border-radius: $radius-xl;
+      width: 90%;
+      max-width: 550px;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: $shadow-xl;
+
+      .modal-title {
+        font-size: $text-xl;
+        margin-bottom: $spacing-6;
+        padding-bottom: $spacing-4;
+        border-bottom: 1px solid $neutral-200;
+      }
+
+      .close-modal {
+        position: absolute;
+        top: $spacing-4;
+        right: $spacing-4;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: $text-tertiary;
+        transition: color $transition-base;
+        width: 32px;
+        height: 32px;
+        @include flex-center;
+        border-radius: $radius-full;
+
+        &:hover {
+          color: $text-primary;
+          background-color: $neutral-50;
+        }
+      }
+    }
+  }
+}

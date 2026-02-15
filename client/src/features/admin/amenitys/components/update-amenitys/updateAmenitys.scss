@@ -1,0 +1,75 @@
+@use "../../../../../styles/variables" as *;
+@use "../../../../../styles/mixins" as *;
+
+.update-amenity-form {
+  .error-message {
+    background-color: $error-light;
+    color: $error;
+    padding: $spacing-3;
+    border-radius: $radius-md;
+    margin-bottom: $spacing-6;
+    font-size: $text-sm;
+    @include flex-center;
+    justify-content: flex-start;
+    gap: $spacing-2;
+    border: 1px solid rgba($error, 0.2);
+  }
+
+  .form-group {
+    margin-bottom: $spacing-5;
+
+    label {
+      @include label-base;
+      @include flex-center;
+      justify-content: flex-start;
+      gap: $spacing-2;
+
+      .input-icon {
+        color: $primary-500;
+      }
+    }
+
+    .form-input,
+    .form-textarea {
+      @include input-base;
+
+      &:focus {
+        @include input-focus;
+      }
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-3;
+    margin-top: $spacing-8;
+    padding-top: $spacing-6;
+    border-top: 1px solid $neutral-100;
+
+    .btn-cancel {
+      @include button-ghost;
+      color: $text-secondary;
+
+      &:hover {
+        background-color: $neutral-50;
+        color: $text-primary;
+      }
+    }
+
+    .btn-submit {
+      @include button-secondary; // Using secondary button for update actions
+      min-width: 140px;
+
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
