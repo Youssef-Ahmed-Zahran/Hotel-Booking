@@ -25,6 +25,7 @@ import Profile from "./features/profile/pages/profile/Profile";
 
 // Admin pages
 import Dashboard from "./features/admin/dashboard/pages/dashboard/Dashboard";
+import AdminHotels from "./features/admin/hotels/pages/hotels/Hotels";
 
 function App() {
   return (
@@ -61,6 +62,7 @@ function App() {
               {/* Admin routes */}
               <Route element={<AdminRoute />}>
                 <Route path="/admin/dashboard" element={<Dashboard />} />
+                <Route path="/admin/hotels" element={<AdminHotels />} />
               </Route>
 
               {/* 404 */}

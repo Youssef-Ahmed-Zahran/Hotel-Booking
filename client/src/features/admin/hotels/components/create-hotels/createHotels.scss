@@ -1,0 +1,272 @@
+@use "../../../../../styles/variables" as *;
+@use "../../../../../styles/mixins" as *;
+
+.create-hotel-form,
+.update-hotel-form {
+  padding: $spacing-2;
+  @include fade-in($transition-base);
+
+  header {
+    margin-bottom: $spacing-6;
+    border-bottom: 1px solid $border-light;
+    padding-bottom: $spacing-4;
+
+    h2 {
+      @include heading-4;
+      color: $text-primary;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+    }
+
+    p {
+      @include body-small;
+      color: $text-secondary;
+      margin-top: $spacing-1;
+    }
+  }
+
+  .form-error {
+    @include flex-center;
+    gap: $spacing-2;
+    background-color: $error-light;
+    color: $error;
+    padding: $spacing-3;
+    border-radius: $radius-md;
+    margin-bottom: $spacing-6;
+    font-size: $text-sm;
+    border: 1px solid rgba($error, 0.2);
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-5;
+
+    .form-section {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-4;
+
+      .section-title {
+        @include body-small;
+        font-weight: $font-semibold;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: $text-tertiary;
+        margin-bottom: $spacing-1;
+      }
+    }
+
+    .grid-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: $spacing-4;
+
+      @include md {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      &.three-col {
+        @include md {
+          grid-template-columns: 1fr 1fr 1fr;
+        }
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-2;
+
+      label {
+        @include body-small;
+        font-weight: $font-medium;
+        color: $text-secondary;
+      }
+
+      .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        .input-icon {
+          position: absolute;
+          left: $spacing-3;
+          color: $text-tertiary;
+          pointer-events: none;
+        }
+
+        input,
+        textarea,
+        select {
+          @include input-base;
+          padding-left: $spacing-10;
+
+          &.has-error {
+            border-color: $error;
+            background-color: rgba($error, 0.02);
+
+            &:focus {
+              box-shadow: 0 0 0 3px rgba($error, 0.1);
+            }
+          }
+        }
+
+        textarea {
+          padding-left: $spacing-4;
+          min-height: 100px;
+        }
+      }
+
+      .error-message {
+        @include body-small;
+        color: $error;
+        font-size: 0.75rem;
+        margin-top: $spacing-1;
+      }
+
+      &.checkbox {
+        flex-direction: row;
+        align-items: center;
+        gap: $spacing-3;
+        padding: $spacing-3;
+        background: $bg-secondary;
+        border-radius: $radius-lg;
+        cursor: pointer;
+        transition: background $transition-fast;
+
+        &:hover {
+          background: $neutral-200;
+        }
+
+        label {
+          cursor: pointer;
+          margin: 0;
+          user-select: none;
+        }
+
+        input {
+          width: 18px;
+          height: 18px;
+          cursor: pointer;
+        }
+      }
+    }
+
+    .image-upload-container {
+      .image-previews-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: $spacing-4;
+        margin-top: $spacing-4;
+      }
+
+      .image-upload-box {
+        border: 2px dashed $border-medium;
+        border-radius: $radius-xl;
+        padding: $spacing-4;
+        @include flex-column-center;
+        gap: $spacing-2;
+        cursor: pointer;
+        transition: all $transition-base;
+        background: $bg-secondary;
+        min-height: 120px;
+
+        &.small {
+          padding: $spacing-2;
+          min-height: 100px;
+        }
+
+        &:hover {
+          border-color: $primary-400;
+          background: $primary-50;
+
+          .upload-icon {
+            color: $primary-500;
+            transform: translateY(-2px);
+          }
+        }
+
+        input {
+          display: none;
+        }
+
+        .upload-icon {
+          color: $text-tertiary;
+          transition: all $transition-base;
+        }
+
+        .upload-text {
+          @include body-small;
+          text-align: center;
+
+          span {
+            display: block;
+            font-weight: $font-medium;
+            color: $text-primary;
+          }
+
+          small {
+            color: $text-tertiary;
+          }
+        }
+      }
+
+      .image-preview-wrapper {
+        position: relative;
+        border-radius: $radius-lg;
+        overflow: hidden;
+        box-shadow: $shadow-sm;
+        aspect-ratio: 1;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .remove-image-btn {
+          position: absolute;
+          top: $spacing-1;
+          right: $spacing-1;
+          background: rgba($error, 0.9);
+          color: white;
+          border: none;
+          border-radius: $radius-full;
+          width: 24px;
+          height: 24px;
+          @include flex-center;
+          cursor: pointer;
+          transition: all $transition-fast;
+
+          &:hover {
+            background: $error;
+            transform: scale(1.1);
+          }
+        }
+      }
+    }
+
+    .form-actions {
+      @include flex-between;
+      margin-top: $spacing-8;
+      padding-top: $spacing-6;
+      border-top: 1px solid $border-light;
+
+      button {
+        min-width: 120px;
+
+        &.cancel-btn {
+          @include button-ghost;
+          color: $text-secondary;
+        }
+
+        &.submit-btn {
+          @include button-primary;
+        }
+      }
+    }
+  }
+}
