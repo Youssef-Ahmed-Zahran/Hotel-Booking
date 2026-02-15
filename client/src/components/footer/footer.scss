@@ -1,0 +1,205 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.footer {
+  background: $neutral-900;
+  color: $neutral-100;
+  padding: $spacing-20 0 $spacing-8;
+  margin-top: auto;
+  border-top: 1px solid $neutral-800;
+
+  &__container {
+    @include container;
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-12;
+    margin-bottom: $spacing-16;
+
+    @include respond-to(sm) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include respond-to(lg) {
+      grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    }
+  }
+
+  &__section {
+    @include flex-column;
+    gap: $spacing-6;
+  }
+
+  &__brand {
+    @include flex-center;
+    justify-content: flex-start;
+    gap: $spacing-3;
+    font-family: $font-secondary;
+    font-size: $text-2xl;
+    font-weight: $font-bold;
+    color: $primary-400;
+    margin-bottom: $spacing-1;
+    letter-spacing: -0.02em;
+
+    svg {
+      width: 36px;
+      height: 36px;
+      color: $primary-500;
+    }
+  }
+
+  &__description {
+    color: $neutral-400;
+    line-height: $leading-relaxed;
+    max-width: 32ch;
+  }
+
+  &__title {
+    font-family: $font-secondary;
+    font-size: $text-lg;
+    font-weight: $font-bold;
+    color: $neutral-50;
+    margin-bottom: $spacing-2;
+    position: relative;
+    padding-bottom: $spacing-2;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 24px;
+      height: 2px;
+      background: $secondary-400;
+      border-radius: $radius-full;
+    }
+  }
+
+  &__links {
+    @include flex-column;
+    gap: $spacing-3;
+  }
+
+  &__link {
+    color: $neutral-400;
+    text-decoration: none;
+    transition: all $transition-base;
+    font-weight: $font-medium;
+
+    &:hover {
+      color: $secondary-400;
+      transform: translateX(4px);
+    }
+  }
+
+  &__social {
+    display: flex;
+    gap: $spacing-4;
+    margin-top: $spacing-2;
+  }
+
+  &__social-link {
+    @include flex-center;
+    width: 44px;
+    height: 44px;
+    border-radius: $radius-lg;
+    background: $neutral-800;
+    color: $neutral-300;
+    transition: all $transition-base;
+    border: 1px solid $neutral-700;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      background: $gradient-primary;
+      color: $text-inverse;
+      border-color: transparent;
+      transform: translateY(-4px);
+      box-shadow: $shadow-primary;
+    }
+  }
+
+  &__newsletter {
+    @include flex-column;
+    gap: $spacing-4;
+  }
+
+  &__newsletter-form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+
+    @include respond-to(xs) {
+      flex-direction: row;
+    }
+  }
+
+  &__newsletter-input {
+    flex: 1;
+    padding: $spacing-3 $spacing-4;
+    border: 1px solid $neutral-700;
+    border-radius: $radius-lg;
+    background: $neutral-800;
+    color: $text-inverse;
+    font-size: $text-sm;
+    transition: all $transition-base;
+
+    &::placeholder {
+      color: $neutral-500;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary-500;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+  }
+
+  &__newsletter-btn {
+    padding: $spacing-3 $spacing-6;
+    @include button-primary;
+    font-size: $text-sm;
+    border-radius: $radius-lg;
+  }
+
+  &__bottom {
+    padding: $spacing-8 0;
+    border-top: 1px solid $neutral-800;
+    @include flex-between;
+    flex-direction: column;
+    gap: $spacing-6;
+
+    @include respond-to(md) {
+      flex-direction: row;
+    }
+  }
+
+  &__copyright {
+    color: $neutral-500;
+    font-size: $text-sm;
+  }
+
+  &__bottom-links {
+    display: flex;
+    gap: $spacing-8;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  &__bottom-link {
+    color: $neutral-500;
+    font-size: $text-sm;
+    text-decoration: none;
+    transition: color $transition-base;
+    font-weight: $font-medium;
+
+    &:hover {
+      color: $neutral-200;
+    }
+  }
+}

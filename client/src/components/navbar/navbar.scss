@@ -1,0 +1,256 @@
+@use "../../styles/variables" as *;
+@use "../../styles/mixins" as *;
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: $z-sticky;
+  @include card-glass;
+  background: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: $shadow-sm;
+
+  &__container {
+    @include container;
+    @include flex-between;
+    padding-top: $spacing-3;
+    padding-bottom: $spacing-3;
+  }
+
+  &__logo {
+    @include flex-center;
+    gap: $spacing-3;
+    font-family: $font-secondary;
+    font-size: $text-2xl;
+    font-weight: $font-bold;
+    color: $primary-600;
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    transition: transform $transition-base;
+
+    &:hover {
+      transform: scale(1.02);
+      color: $primary-700;
+    }
+
+    svg {
+      width: 36px;
+      height: 36px;
+      color: $primary-500;
+      filter: drop-shadow(0 4px 6px rgba(59, 130, 246, 0.2));
+    }
+  }
+
+  &__nav {
+    display: none;
+
+    @include respond-to(md) {
+      @include flex-center;
+      gap: $spacing-10;
+    }
+  }
+
+  &__link {
+    font-family: $font-secondary;
+    font-size: $text-base;
+    font-weight: $font-semibold;
+    color: $text-secondary;
+    text-decoration: none;
+    transition: all $transition-base;
+    position: relative;
+    padding: $spacing-2 0;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: $gradient-primary;
+      transition: all $transition-base;
+      transform: translateX(-50%);
+      border-radius: $radius-full;
+    }
+
+    &:hover {
+      color: $primary-600;
+      transform: translateY(-1px);
+
+      &::after {
+        width: 100%;
+      }
+    }
+
+    &.active {
+      color: $primary-600;
+
+      &::after {
+        width: 100%;
+      }
+    }
+  }
+
+  &__actions {
+    @include flex-center;
+    gap: $spacing-4;
+  }
+
+  &__user {
+    @include flex-center;
+    gap: $spacing-3;
+    position: relative;
+  }
+
+  &__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: $radius-full;
+    background: $gradient-primary;
+    @include flex-center;
+    color: $text-inverse;
+    font-weight: $font-semibold;
+    cursor: pointer;
+    transition: all $transition-base;
+    border: 2px solid transparent;
+    box-shadow: $shadow-md;
+
+    &:hover {
+      transform: translateY(-2px);
+      border-color: $primary-200;
+      box-shadow: $shadow-lg;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      border-radius: $radius-full;
+      object-fit: cover;
+    }
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + $spacing-4);
+    right: 0;
+    min-width: 220px;
+    @include card-glass;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: $radius-xl;
+    padding: $spacing-2;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all $transition-bounce;
+    z-index: $z-dropdown;
+
+    &.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  }
+
+  &__dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-3 $spacing-4;
+    border-radius: $radius-lg;
+    color: $text-secondary;
+    text-decoration: none;
+    font-weight: $font-medium;
+    transition: all $transition-base;
+    cursor: pointer;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      background: rgba(59, 130, 246, 0.08);
+      color: $primary-600;
+    }
+
+    &.danger {
+      color: $error;
+
+      &:hover {
+        background: $error-light;
+        color: $error;
+      }
+    }
+  }
+
+  &__btn {
+    @include button-primary;
+    padding: $spacing-2 $spacing-6;
+    font-size: $text-sm;
+    border-radius: $radius-full;
+  }
+
+  &__btn-outline {
+    @include button-outline;
+    padding: $spacing-2 $spacing-6;
+    font-size: $text-sm;
+    border-radius: $radius-full;
+    border-width: 1.5px;
+  }
+
+  &__mobile-toggle {
+    display: flex;
+
+    @include respond-to(md) {
+      display: none;
+    }
+
+    button {
+      @include flex-center;
+      padding: $spacing-2;
+      color: $text-primary;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+
+  &__mobile-menu {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+    padding: $spacing-4;
+    background: $bg-primary;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    @include scale-in(200ms);
+
+    @include respond-to(md) {
+      display: none;
+    }
+
+    &.hidden {
+      display: none;
+    }
+  }
+
+  &__mobile-link {
+    padding: $spacing-3 $spacing-4;
+    border-radius: $radius-lg;
+    color: $text-secondary;
+    text-decoration: none;
+    font-weight: $font-semibold;
+    transition: all $transition-base;
+
+    &:hover,
+    &.active {
+      background: $primary-50;
+      color: $primary-600;
+      transform: translateX(4px);
+    }
+  }
+}
