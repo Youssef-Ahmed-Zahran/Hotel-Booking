@@ -1,0 +1,503 @@
+@use "sass:math";
+@use "./variables" as *;
+
+// ============= Responsive Mixins =============
+@mixin respond-to($breakpoint) {
+  @if $breakpoint ==xs {
+    @media (min-width: $breakpoint-xs) {
+      @content;
+    }
+  } @else if $breakpoint ==sm {
+    @media (min-width: $breakpoint-sm) {
+      @content;
+    }
+  } @else if $breakpoint ==md {
+    @media (min-width: $breakpoint-md) {
+      @content;
+    }
+  } @else if $breakpoint ==lg {
+    @media (min-width: $breakpoint-lg) {
+      @content;
+    }
+  } @else if $breakpoint ==xl {
+    @media (min-width: $breakpoint-xl) {
+      @content;
+    }
+  } @else if $breakpoint ==2xl {
+    @media (min-width: $breakpoint-2xl) {
+      @content;
+    }
+  }
+}
+
+// ============= Mixin Aliases =============
+@mixin xs {
+  @include respond-to(xs) {
+    @content;
+  }
+}
+
+@mixin sm {
+  @include respond-to(sm) {
+    @content;
+  }
+}
+
+@mixin md {
+  @include respond-to(md) {
+    @content;
+  }
+}
+
+@mixin lg {
+  @include respond-to(lg) {
+    @content;
+  }
+}
+
+@mixin xl {
+  @include respond-to(xl) {
+    @content;
+  }
+}
+
+@mixin xxl {
+  @include respond-to(2xl) {
+    @content;
+  }
+}
+
+@mixin btn-primary {
+  @include button-primary;
+}
+
+@mixin btn-secondary {
+  @include button-secondary;
+}
+
+@mixin btn-outline {
+  @include button-outline;
+}
+
+@mixin btn-ghost {
+  @include button-ghost;
+}
+
+// ============= Flexbox Mixins =============
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-column-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+// ============= Typography Mixins =============
+@mixin heading-1 {
+  font-family: $font-display;
+  font-size: $text-5xl;
+  font-weight: $font-bold;
+  line-height: $leading-tight;
+
+  @include respond-to(md) {
+    font-size: $text-6xl;
+  }
+}
+
+@mixin heading-2 {
+  font-family: $font-display;
+  font-size: $text-4xl;
+  font-weight: $font-bold;
+  line-height: $leading-tight;
+
+  @include respond-to(md) {
+    font-size: $text-5xl;
+  }
+}
+
+@mixin heading-3 {
+  font-family: $font-secondary;
+  font-size: $text-3xl;
+  font-weight: $font-semibold;
+  line-height: $leading-tight;
+
+  @include respond-to(md) {
+    font-size: $text-4xl;
+  }
+}
+
+@mixin heading-4 {
+  font-family: $font-secondary;
+  font-size: $text-2xl;
+  font-weight: $font-semibold;
+  line-height: $leading-normal;
+
+  @include respond-to(md) {
+    font-size: $text-3xl;
+  }
+}
+
+@mixin body-large {
+  font-family: $font-primary;
+  font-size: $text-lg;
+  font-weight: $font-normal;
+  line-height: $leading-relaxed;
+}
+
+@mixin body-base {
+  font-family: $font-primary;
+  font-size: $text-base;
+  font-weight: $font-normal;
+  line-height: $leading-normal;
+}
+
+@mixin body-small {
+  font-family: $font-primary;
+  font-size: $text-sm;
+  font-weight: $font-normal;
+  line-height: $leading-normal;
+}
+
+@mixin body-xs {
+  font-family: $font-primary;
+  font-size: $text-xs;
+  font-weight: $font-normal;
+  line-height: $leading-normal;
+}
+
+// ============= Button Mixins =============
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  padding: $spacing-3 $spacing-6;
+  border: none;
+  border-radius: $radius-lg;
+  font-family: $font-secondary;
+  font-size: $text-base;
+  font-weight: $font-medium;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all $transition-base;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  background: $gradient-primary;
+  color: $text-inverse;
+  box-shadow: $shadow-primary;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: $shadow-xl, $shadow-primary;
+    filter: brightness(1.1);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+  }
+}
+
+@mixin button-secondary {
+  @include button-base;
+  background: $gradient-secondary;
+  color: $text-inverse;
+  box-shadow: $shadow-secondary;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: $shadow-xl, $shadow-secondary;
+    filter: brightness(1.1);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+  }
+}
+
+@mixin button-outline {
+  @include button-base;
+  background: transparent;
+  color: $primary-600;
+  border: 2px solid $primary-600;
+
+  &:hover:not(:disabled) {
+    background: $primary-50;
+    transform: translateY(-2px);
+  }
+}
+
+@mixin button-ghost {
+  @include button-base;
+  background: transparent;
+  color: $text-primary;
+
+  &:hover:not(:disabled) {
+    background: $neutral-100;
+  }
+}
+
+// ============= Card Mixins =============
+@mixin card-base {
+  background: $bg-primary;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  transition: all $transition-base;
+}
+
+@mixin card-hover {
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-2xl;
+  }
+}
+
+@mixin card-glass {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: $shadow-lg;
+}
+
+@mixin hover-lift {
+  transition: transform $transition-base, box-shadow $transition-base;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: $shadow-xl;
+  }
+}
+
+// ============= Input Mixins =============
+@mixin input-focus {
+  outline: none;
+  border-color: $primary-500;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+@mixin input-base {
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  border: 2px solid $border-light;
+  border-radius: $radius-lg;
+  font-family: $font-primary;
+  font-size: $text-base;
+  color: $text-primary;
+  background: $bg-primary;
+  transition: all $transition-base;
+
+  &:focus {
+    @include input-focus;
+  }
+
+  &::placeholder {
+    color: $text-tertiary;
+  }
+
+  &:disabled {
+    background: $neutral-100;
+    cursor: not-allowed;
+  }
+}
+
+// ============= Container Mixins =============
+@mixin container {
+  width: 100%;
+  max-width: $container-2xl;
+  margin: 0 auto;
+  padding: 0 $spacing-4;
+
+  @include respond-to(sm) {
+    padding: 0 $spacing-6;
+  }
+
+  @include respond-to(lg) {
+    padding: 0 $spacing-8;
+  }
+}
+
+@mixin section-padding {
+  padding: $spacing-12 0;
+
+  @include respond-to(md) {
+    padding: $spacing-16 0;
+  }
+
+  @include respond-to(lg) {
+    padding: $spacing-24 0;
+  }
+}
+
+// ============= Animation Mixins =============
+@mixin fade-in($duration: $transition-base) {
+  animation: fadeIn $duration ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@mixin slide-up($duration: $transition-base) {
+  animation: slideUp $duration ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@mixin scale-in($duration: $transition-base) {
+  animation: scaleIn $duration ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// ============= Utility Mixins =============
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin line-clamp($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@mixin aspect-ratio($width, $height) {
+  position: relative;
+
+  &::before {
+    content: "";
+    display: block;
+    padding-top: math.div($height, $width) * 100%;
+  }
+
+  > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+@mixin overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@mixin scrollbar-custom {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $neutral-100;
+    border-radius: $radius-full;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $neutral-300;
+    border-radius: $radius-full;
+
+    &:hover {
+      background: $neutral-400;
+    }
+  }
+}
+
+// ============= Form Mixins =============
+@mixin label-base {
+  display: block;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
+  color: $text-secondary;
+  margin-bottom: $spacing-2;
+}
+
+// ============= More Animation Mixins =============
+@mixin fade-in-up($duration: $transition-base) {
+  animation: fadeInUp $duration ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ============= Transition Mixins =============
+@mixin transition-base($property: all) {
+  transition: $property $transition-base;
+}
+
+@mixin transition-fast($property: all) {
+  transition: $property $transition-fast;
+}
+
+@mixin transition-slow($property: all) {
+  transition: $property $transition-slow;
+}
