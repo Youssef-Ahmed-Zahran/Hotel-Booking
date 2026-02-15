@@ -23,6 +23,9 @@ import CheckoutBooking from "./features/checkout-booking/pages/checkout-booking/
 import BookingConfirmationPage from "./features/checkout-booking/pages/booking-confirmation/BookingConfirmationPage";
 import Profile from "./features/profile/pages/profile/Profile";
 
+// Admin pages
+import Dashboard from "./features/admin/dashboard/pages/dashboard/Dashboard";
+
 function App() {
   return (
     <BrowserRouter>
@@ -56,7 +59,9 @@ function App() {
               </Route>
 
               {/* Admin routes */}
-              <Route element={<AdminRoute />}></Route>
+              <Route element={<AdminRoute />}>
+                <Route path="/admin/dashboard" element={<Dashboard />} />
+              </Route>
 
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
