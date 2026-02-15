@@ -1,0 +1,125 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.booking-card {
+  @include card-base;
+  @include hover-lift;
+  padding: $spacing-8;
+  background: $bg-primary;
+  border: 1px solid $neutral-100;
+
+  &__header {
+    @include flex-between;
+    margin-bottom: $spacing-6;
+    padding-bottom: $spacing-6;
+    border-bottom: 1px solid $neutral-100;
+  }
+
+  &__id {
+    font-size: $text-xs;
+    font-weight: $font-bold;
+    color: $neutral-400;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  &__status {
+    padding: $spacing-1.5 $spacing-4;
+    border-radius: $radius-full;
+    font-size: $text-xs;
+    font-weight: $font-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    &--pending {
+      background: $primary-50;
+      color: $primary-700;
+      border: 1px solid $primary-100;
+    }
+
+    &--confirmed {
+      background: #f0fdf4;
+      color: #15803d;
+      border: 1px solid #dcfce7;
+    }
+
+    &--cancelled {
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fee2e2;
+    }
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-6;
+
+    @include respond-to(md) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  &__info {
+    @include flex-column;
+    gap: $spacing-1.5;
+  }
+
+  &__label {
+    font-size: $text-xs;
+    font-weight: $font-bold;
+    color: $neutral-400;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__value {
+    font-weight: $font-bold;
+    color: $neutral-800;
+    font-size: $text-sm;
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-4;
+    margin-top: $spacing-6;
+    padding-top: $spacing-6;
+    border-top: 1px solid $neutral-100;
+  }
+
+  &__btn {
+    padding: $spacing-2.5 $spacing-6;
+    font-size: $text-xs;
+    font-weight: $font-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: $radius-full;
+    cursor: pointer;
+    transition: all $transition-base;
+    background: transparent;
+    border: 2px solid $neutral-200;
+    color: $neutral-600;
+
+    &:hover:not(:disabled) {
+      border-color: $neutral-400;
+      background: $neutral-50;
+      color: $neutral-800;
+    }
+
+    &--danger {
+      color: #ef4444;
+      border-color: #fee2e2;
+
+      &:hover:not(:disabled) {
+        background-color: #fef2f2;
+        border-color: #fca5a5;
+        color: #b91c1c;
+      }
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+}

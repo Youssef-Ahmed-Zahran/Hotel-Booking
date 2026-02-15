@@ -1,0 +1,44 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.booking-confirmation-page {
+  min-height: 100vh;
+  padding: $spacing-12 0 $spacing-20;
+  background: $bg-secondary;
+  position: relative;
+  @include fade-in(400ms);
+
+  &__container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 $spacing-6;
+    position: relative;
+    z-index: 1;
+  }
+
+  &__error {
+    @include flex-center;
+    @include flex-column;
+    min-height: 400px;
+    text-align: center;
+    gap: $spacing-6;
+
+    h1 {
+      @include heading-1;
+      color: $neutral-900;
+    }
+
+    p {
+      color: $neutral-500;
+      font-size: $text-lg;
+      max-width: 400px;
+    }
+  }
+
+  &__btn {
+    @include button-primary;
+    padding: $spacing-4 $spacing-12;
+    border-radius: $radius-full;
+    font-size: $text-sm;
+  }
+}

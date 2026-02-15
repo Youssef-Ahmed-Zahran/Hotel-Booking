@@ -1,0 +1,209 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.booking-summary-card {
+  @include card-base;
+  @include flex-column;
+  gap: 0;
+  position: sticky;
+  top: $spacing-6;
+  overflow: hidden;
+  box-shadow: $shadow-xl;
+  background: $bg-primary;
+  border: 1px solid $neutral-100;
+  transition: all $transition-base;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &__header {
+    background: linear-gradient(135deg, $primary-600, $primary-800);
+    padding: $spacing-6;
+    @include flex-center;
+    gap: $spacing-3;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+
+  &__header-icon {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2.5;
+  }
+
+  &__title {
+    font-size: $text-xl;
+    font-weight: $font-bold;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  &__section {
+    @include flex-column;
+    gap: $spacing-4;
+    padding: $spacing-6;
+    border-bottom: 1px solid $neutral-100;
+    transition: background-color $transition-fast;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &--highlight {
+      background: $primary-50;
+    }
+  }
+
+  &__section-header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+  }
+
+  &__icon {
+    width: 18px;
+    height: 18px;
+    color: $primary-500;
+    stroke-width: 2.5;
+    flex-shrink: 0;
+  }
+
+  &__section-title {
+    font-size: $text-xs;
+    font-weight: $font-bold;
+    color: $neutral-400;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0;
+  }
+
+  &__hotel {
+    font-size: $text-sm;
+    color: $text-secondary;
+    margin: 0;
+    padding-left: calc(20px + #{$spacing-2});
+  }
+
+  &__accommodation {
+    font-size: $text-base;
+    font-weight: $font-bold;
+    margin: 0;
+    margin-left: calc(18px + #{$spacing-2});
+    color: $neutral-800;
+  }
+
+  &__type {
+    display: inline-flex;
+    gap: $spacing-1;
+    padding: $spacing-1.5 $spacing-3;
+    background: $primary-100;
+    color: $primary-700;
+    border-radius: $radius-full;
+    font-size: $text-xs;
+    font-weight: $font-bold;
+    margin-left: calc(18px + #{$spacing-2});
+  }
+
+  &__dates {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: $spacing-3;
+    align-items: center;
+    margin-left: calc(18px + #{$spacing-2});
+  }
+
+  &__date {
+    @include flex-column;
+    gap: 2px;
+  }
+
+  &__date-divider {
+    width: 24px;
+    height: 24px;
+    color: $primary-400;
+
+    svg {
+      width: 100%;
+      height: 100%;
+      stroke-width: 2;
+    }
+  }
+
+  &__date-label {
+    font-size: $text-xs;
+    color: $neutral-400;
+    font-weight: $font-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__date-value {
+    font-size: $text-sm;
+    font-weight: $font-bold;
+    color: $neutral-800;
+  }
+
+  &__nights {
+    display: flex;
+    align-items: center;
+    gap: $spacing-1.5;
+    font-size: $text-xs;
+    color: $primary-600;
+    font-weight: $font-bold;
+    margin: 0;
+    margin-left: calc(18px + #{$spacing-2});
+  }
+
+  &__guests {
+    font-size: $text-base;
+    font-weight: $font-bold;
+    margin: 0;
+    margin-left: calc(18px + #{$spacing-2});
+    color: $neutral-800;
+  }
+
+  &__price-breakdown {
+    @include flex-column;
+    gap: $spacing-2;
+    margin-left: calc(18px + #{$spacing-2});
+  }
+
+  &__price-row {
+    @include flex-between;
+    font-size: $text-sm;
+    color: $neutral-600;
+    font-weight: $font-medium;
+
+    &--total {
+      margin-top: $spacing-4;
+      padding-top: $spacing-4;
+      border-top: 2px dashed $neutral-100;
+      color: $neutral-900;
+
+      span {
+        position: relative;
+        z-index: 1;
+
+        &:last-child {
+          font-size: $text-2xl;
+          font-weight: $font-bold;
+          color: $primary-600;
+        }
+      }
+    }
+  }
+}
+
+@keyframes shimmer {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) rotate(180deg);
+  }
+}

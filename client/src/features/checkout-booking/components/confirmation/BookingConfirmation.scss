@@ -1,0 +1,241 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.booking-confirmation {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: $spacing-6;
+  @include flex-column;
+  gap: $spacing-10;
+
+  &__success {
+    text-align: center;
+    @include flex-column;
+    align-items: center;
+    gap: $spacing-6;
+    padding: $spacing-12 $spacing-8;
+    background: white;
+    border-radius: $radius-3xl;
+    box-shadow: $shadow-xl;
+    border: 1px solid $neutral-100;
+    position: relative;
+    overflow: hidden;
+  }
+
+  &__icon {
+    width: 80px;
+    height: 80px;
+    border-radius: $radius-full;
+    background: $primary-600;
+    color: white;
+    @include flex-center;
+    box-shadow: 0 8px 16px rgba($primary-600, 0.2);
+    margin: 0 auto;
+
+    svg {
+      width: 40px;
+      height: 40px;
+      stroke-width: 3;
+    }
+  }
+
+  &__title {
+    @include heading-1;
+    font-size: $text-4xl;
+    color: $neutral-900;
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: $text-base;
+    color: $neutral-500;
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 0 auto;
+
+    strong {
+      color: $neutral-800;
+    }
+  }
+
+  &__details {
+    @include flex-column;
+    gap: $spacing-8;
+  }
+
+  &__section {
+    @include card-base;
+    padding: $spacing-8;
+    background: white;
+    border: 1px solid $neutral-100;
+    box-shadow: $shadow-lg;
+
+    &-header {
+      display: flex;
+      align-items: center;
+      gap: $spacing-3;
+      margin-bottom: $spacing-6;
+    }
+
+    &-icon {
+      width: 20px;
+      height: 20px;
+      color: $primary-500;
+      stroke-width: 2.5;
+    }
+
+    &-title {
+      font-size: $text-lg;
+      font-weight: $font-bold;
+      color: $neutral-800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+  }
+
+  &__reference {
+    text-align: center;
+    background: $neutral-50;
+    padding: $spacing-8;
+    border-radius: $radius-2xl;
+    border: 2px dashed $neutral-200;
+  }
+
+  &__booking-id {
+    display: block;
+    font-size: $text-3xl;
+    font-weight: $font-bold;
+    color: $primary-600;
+    letter-spacing: 0.2em;
+    margin-top: $spacing-2;
+  }
+
+  &__info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: $spacing-6;
+  }
+
+  &__info-item {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+
+    &--highlight {
+      padding: $spacing-4;
+      background: $primary-50;
+      border-radius: $radius-2xl;
+      border: 1px solid $primary-100;
+    }
+  }
+
+  &__info-label {
+    font-size: $text-xs;
+    font-weight: $font-bold;
+    color: $neutral-400;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__info-value {
+    font-size: $text-base;
+    font-weight: $font-bold;
+    color: $neutral-800;
+
+    &--price {
+      font-size: $text-xl;
+      color: $primary-600;
+    }
+  }
+
+  &__steps {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: $spacing-3;
+      color: $neutral-600;
+      font-weight: $font-medium;
+
+      svg {
+        width: 18px;
+        height: 18px;
+        color: #10b981;
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-4;
+    justify-content: center;
+    margin-top: $spacing-4;
+  }
+
+  &__btn {
+    @include flex-center;
+    gap: $spacing-2;
+    padding: $spacing-4 $spacing-8;
+    border-radius: $radius-full;
+    font-size: $text-sm;
+    font-weight: $font-bold;
+    transition: all $transition-base;
+
+    &--primary {
+      @include button-primary;
+    }
+
+    &--secondary {
+      @include button-secondary;
+    }
+
+    &--print {
+      border: 2px solid $neutral-200;
+      color: $neutral-600;
+
+      &:hover {
+        border-color: $neutral-400;
+        color: $neutral-800;
+      }
+    }
+  }
+}
+
+@keyframes successPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 10px 40px rgba(34, 197, 94, 0.4);
+  }
+
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 15px 50px rgba(34, 197, 94, 0.6);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@media print {
+  .booking-confirmation {
+    &__actions {
+      display: none;
+    }
+
+    &__confetti {
+      display: none;
+    }
+  }
+}

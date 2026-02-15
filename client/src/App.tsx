@@ -18,6 +18,8 @@ import Hotels from "./features/hotels/pages/hotels/Hotels";
 import HotelDetails from "./features/hotel-details/pages/hotel-details/HotelDetails";
 import ApartmentDetails from "./features/apartment-details/pages/apartment-details/ApartmentDetails";
 import RoomDetails from "./features/room-details/pages/room-details/RoomDetails";
+import MyBookings from "./features/my-bookings/pages/my-bookings/MyBookings";
+import CheckoutBooking from "./features/checkout-booking/pages/checkout-booking/CheckoutBooking";
 
 function App() {
   return (
@@ -41,7 +43,10 @@ function App() {
               </Route>
 
               {/* Protected routes */}
-              <Route element={<PrivateRoute />}></Route>
+              <Route element={<PrivateRoute />}>
+                <Route path="/my-bookings" element={<MyBookings />} />
+                <Route path="/checkout" element={<CheckoutBooking />} />
+              </Route>
 
               {/* Admin routes */}
               <Route element={<AdminRoute />}></Route>

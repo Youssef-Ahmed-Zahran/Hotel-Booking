@@ -1,0 +1,80 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.my-bookings {
+  min-height: 100vh;
+  background: $bg-secondary;
+  padding-bottom: $spacing-20;
+  @include fade-in(400ms);
+
+  &__container {
+    @include container;
+    padding-top: $spacing-12;
+  }
+
+  &__header {
+    margin-bottom: $spacing-12;
+    text-align: center;
+  }
+
+  &__title {
+    @include heading-1;
+    font-size: $text-4xl;
+    margin-bottom: $spacing-4;
+    color: $neutral-900;
+    letter-spacing: -0.03em;
+  }
+
+  &__subtitle {
+    color: $neutral-500;
+    font-size: $text-lg;
+    font-weight: $font-medium;
+  }
+
+  &__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-8;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  &__empty {
+    text-align: center;
+    padding: $spacing-20;
+    @include card-base;
+    background: $bg-primary;
+    border: 1px solid $neutral-100;
+    box-shadow: $shadow-xl;
+    max-width: 600px;
+    margin: $spacing-12 auto;
+    border-radius: $radius-3xl;
+
+    h3 {
+      font-size: $text-2xl;
+      font-weight: $font-bold;
+      margin-bottom: $spacing-4;
+      color: $neutral-900;
+      letter-spacing: -0.01em;
+    }
+
+    p {
+      color: $neutral-500;
+      margin-bottom: $spacing-10;
+      font-size: $text-base;
+      font-weight: $font-medium;
+    }
+  }
+
+  &__cta {
+    @include button-primary;
+    padding: $spacing-3.5 $spacing-10;
+    font-size: $text-sm;
+    border-radius: $radius-full;
+  }
+
+  // Override loader padding for infinite scroll
+  :global(.loader--inline) {
+    padding: 0;
+  }
+}
