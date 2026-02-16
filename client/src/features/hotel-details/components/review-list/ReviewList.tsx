@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import type { Review } from "../../../../types";
 import {
-  useGetReviewsByHotelQuery,
+  useGetAllReviewsQuery,
   useDeleteReviewMutation,
 } from "../../../admin/reviews/slice/reviewSlice";
 import { useGetCurrentUserQuery } from "../../../auth/slice/authSlice";
 import ReviewCard from "../review-card/ReviewCard";
 import Loader from "../../../../components/loader/Loader";
+import { useInfiniteScroll } from "../../../../hooks/useInfiniteScroll";
+import InfiniteScrollFooter from "../../../../components/infinite-scroll-footer/InfiniteScrollFooter";
 import "./reviewList.scss";
 
 interface ReviewListProps {
@@ -14,9 +16,26 @@ interface ReviewListProps {
 }
 
 const ReviewList: React.FC<ReviewListProps> = ({ hotelId }) => {
-  const { data, isLoading, error } = useGetReviewsByHotelQuery(hotelId);
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isFetching, error } = useGetAllReviewsQuery({
+    hotelId,
+    page,
+    limit: 5,
+  });
   const { data: currentUser } = useGetCurrentUserQuery();
   const [deleteReview] = useDeleteReviewMutation();
+
+  const loadMore = () => {
+    if (data?.pagination && page < data.pagination.totalPages && !isFetching) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  const observerTarget = useInfiniteScroll({
+    onLoadMore: loadMore,
+    hasMore: data ? page < data.pagination.totalPages : false,
+    isLoading: isFetching,
+  });
 
   if (isLoading) {
     return <Loader text="Loading reviews..." />;
@@ -27,8 +46,8 @@ const ReviewList: React.FC<ReviewListProps> = ({ hotelId }) => {
   }
 
   const reviews = data?.reviews || [];
-  const averageRating = data?.averageRating || "0.0";
-  const totalReviews = data?.totalReviews || 0;
+  const averageRating = data?.reviews.length ? (data.reviews.reduce((acc, r) => acc + r.rating, 0) / data.reviews.length).toFixed(1) : "0.0";
+  const totalReviews = data?.pagination.total || 0;
 
   const handleDelete = async (reviewId: string) => {
     if (window.confirm("Are you sure you want to delete this review?")) {
@@ -68,15 +87,22 @@ const ReviewList: React.FC<ReviewListProps> = ({ hotelId }) => {
 
       <div className="review-list__content">
         {reviews.length > 0 ? (
-          reviews.map((review: Review) => (
-            <ReviewCard
-              key={review.id}
-              review={review}
-              onDelete={handleDelete}
-              currentUserId={currentUser?.id}
-              isAdmin={currentUser?.role === "ADMIN"}
+          <>
+            {reviews.map((review: Review) => (
+              <ReviewCard
+                key={review.id}
+                review={review}
+                onDelete={handleDelete}
+                currentUserId={currentUser?.id}
+                isAdmin={currentUser?.role === "ADMIN"}
+              />
+            ))}
+            <InfiniteScrollFooter
+              isFetching={isFetching}
+              hasMore={data ? page < data.pagination.totalPages : false}
+              observerRef={observerTarget}
             />
-          ))
+          </>
         ) : (
           <div className="review-list__empty">
             <p>No reviews yet. Be the first to share your experience!</p>

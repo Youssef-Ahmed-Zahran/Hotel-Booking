@@ -345,9 +345,8 @@ const CreateRooms: React.FC<CreateRoomsProps> = ({ onClose }) => {
           </div>
 
           <div
-            className={`form-group checkbox ${
-              bookableIndividually ? "active" : ""
-            }`}
+            className={`form-group checkbox ${bookableIndividually ? "active" : ""
+              }`}
           >
             <input
               {...register("bookableIndividually")}

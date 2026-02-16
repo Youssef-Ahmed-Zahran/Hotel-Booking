@@ -2,13 +2,15 @@ import { useState, lazy, Suspense } from "react";
 import { useParams } from "react-router-dom";
 import { MapPin, Mail, Phone } from "lucide-react";
 import { useGetHotelQuery } from "../../../hotels/slice/HotelSlice";
-import { useGetApartmentsByHotelQuery } from "../../../admin/apartments/slice/apartmentSlice";
-import { useGetRoomsByHotelQuery } from "../../../admin/rooms/slice/roomSlice";
+import { useGetApartmentsQuery } from "../../../admin/apartments/slice/apartmentSlice";
+import { useGetRoomsQuery } from "../../../admin/rooms/slice/roomSlice";
 import Loader from "../../../../components/loader/Loader";
 import ApartmentCard from "../../components/apartment-card/ApartmentCard";
 import RoomCard from "../../components/room-card/RoomCard";
 import ReviewList from "../../components/review-list/ReviewList";
 import Breadcrumbs from "../../../../components/breadcrumbs/Breadcrumbs";
+import { useInfiniteScroll } from "../../../../hooks/useInfiniteScroll";
+import InfiniteScrollFooter from "../../../../components/infinite-scroll-footer/InfiniteScrollFooter";
 
 const AddReview = lazy(() => import("../../components/add-review/AddReview"));
 
@@ -17,12 +19,52 @@ import "./hotelDetails.scss";
 const HotelDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { data: hotel, isLoading, error } = useGetHotelQuery(id!);
-  const { data: apartments } = useGetApartmentsByHotelQuery(id!);
-  const { data: rooms } = useGetRoomsByHotelQuery(id!);
+
+  const [roomPage, setRoomPage] = useState(1);
+  const [apartmentPage, setApartmentPage] = useState(1);
+
+  const { data: roomsData, isFetching: isFetchingRooms } = useGetRoomsQuery({
+    hotelId: id!,
+    page: roomPage,
+    limit: 6,
+  });
+  const rooms = roomsData?.rooms || [];
+
+  const { data: apartmentsData, isFetching: isFetchingApartments } = useGetApartmentsQuery({
+    hotelId: id!,
+    page: apartmentPage,
+    limit: 6,
+  });
+  const apartments = apartmentsData?.apartments || [];
 
   const [activeTab, setActiveTab] = useState<
     "apartments" | "rooms" | "reviews"
   >("rooms");
+
+  const loadMoreRooms = () => {
+    if (roomsData?.pagination && roomPage < roomsData.pagination.totalPages && !isFetchingRooms) {
+      setRoomPage(prev => prev + 1);
+    }
+  };
+
+  const roomsObserver = useInfiniteScroll({
+    onLoadMore: loadMoreRooms,
+    hasMore: roomsData ? roomPage < roomsData.pagination.totalPages : false,
+    isLoading: isFetchingRooms,
+  });
+
+  const loadMoreApartments = () => {
+    if (apartmentsData?.pagination && apartmentPage < apartmentsData.pagination.totalPages && !isFetchingApartments) {
+      setApartmentPage(prev => prev + 1);
+    }
+  };
+
+  const apartmentsObserver = useInfiniteScroll({
+    onLoadMore: loadMoreApartments,
+    hasMore: apartmentsData ? apartmentPage < apartmentsData.pagination.totalPages : false,
+    isLoading: isFetchingApartments,
+  });
+
 
   if (isLoading) {
     return <Loader fullscreen text="Loading hotel details..." />;
@@ -55,13 +97,14 @@ const HotelDetails = () => {
     { label: hotel.name },
   ];
 
-  const hasApartments = apartments && apartments.length > 0;
-  const hasRooms = rooms && rooms.length > 0;
+  const hasApartments = apartmentsData && (apartmentsData.pagination.total > 0 || apartments.length > 0);
+  const hasRooms = roomsData && (roomsData.pagination.total > 0 || rooms.length > 0);
 
   // Set default tab if one type is empty
   if (hasApartments && !hasRooms && activeTab !== "apartments") {
     setActiveTab("apartments");
   }
+
 
   return (
     <div className="hotel-details">
@@ -75,9 +118,8 @@ const HotelDetails = () => {
             {displayImages.slice(0, 5).map((img, index) => (
               <div
                 key={index}
-                className={`hotel-details__gallery-item ${
-                  index === 0 ? "hotel-details__gallery-item--large" : ""
-                }`}
+                className={`hotel-details__gallery-item ${index === 0 ? "hotel-details__gallery-item--large" : ""
+                  }`}
               >
                 <img src={img} alt={`${hotel.name} ${index + 1}`} />
               </div>
@@ -109,8 +151,8 @@ const HotelDetails = () => {
                         {Number(hotel.rating) >= 4.5
                           ? "Superb"
                           : Number(hotel.rating) >= 4
-                          ? "Excellent"
-                          : "Good"}
+                            ? "Excellent"
+                            : "Good"}
                       </span>
                       <span className="hotel-details__rating-count">
                         {hotel._count?.reviews || 0} reviews
@@ -131,16 +173,14 @@ const HotelDetails = () => {
             )}
 
             <div
-              className={`hotel-details__section-card ${
-                activeTab === "reviews" ? "hotel-details__reviews-section" : ""
-              }`}
+              className={`hotel-details__section-card ${activeTab === "reviews" ? "hotel-details__reviews-section" : ""
+                }`}
             >
               <div className="hotel-details__tabs">
                 {hasRooms && (
                   <button
-                    className={`hotel-details__tab ${
-                      activeTab === "rooms" ? "active" : ""
-                    }`}
+                    className={`hotel-details__tab ${activeTab === "rooms" ? "active" : ""
+                      }`}
                     onClick={() => setActiveTab("rooms")}
                   >
                     Rooms
@@ -148,18 +188,16 @@ const HotelDetails = () => {
                 )}
                 {hasApartments && (
                   <button
-                    className={`hotel-details__tab ${
-                      activeTab === "apartments" ? "active" : ""
-                    }`}
+                    className={`hotel-details__tab ${activeTab === "apartments" ? "active" : ""
+                      }`}
                     onClick={() => setActiveTab("apartments")}
                   >
                     Apartments
                   </button>
                 )}
                 <button
-                  className={`hotel-details__tab ${
-                    activeTab === "reviews" ? "active" : ""
-                  }`}
+                  className={`hotel-details__tab ${activeTab === "reviews" ? "active" : ""
+                    }`}
                   onClick={() => setActiveTab("reviews")}
                 >
                   Reviews ({hotel._count?.reviews || 0})
@@ -172,6 +210,11 @@ const HotelDetails = () => {
                     {rooms.map((room) => (
                       <RoomCard key={room.id} room={room} />
                     ))}
+                    <InfiniteScrollFooter
+                      isFetching={isFetchingRooms}
+                      hasMore={roomsData ? roomPage < roomsData.pagination.totalPages : false}
+                      observerRef={roomsObserver}
+                    />
                   </div>
                 )}
                 {activeTab === "apartments" && hasApartments && (
@@ -179,6 +222,11 @@ const HotelDetails = () => {
                     {apartments.map((apartment) => (
                       <ApartmentCard key={apartment.id} apartment={apartment} />
                     ))}
+                    <InfiniteScrollFooter
+                      isFetching={isFetchingApartments}
+                      hasMore={apartmentsData ? apartmentPage < apartmentsData.pagination.totalPages : false}
+                      observerRef={apartmentsObserver}
+                    />
                   </div>
                 )}
                 {activeTab === "reviews" && (
