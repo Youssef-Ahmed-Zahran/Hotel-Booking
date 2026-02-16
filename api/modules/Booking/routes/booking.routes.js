@@ -20,8 +20,8 @@ import {
 const router = express.Router();
 
 // Booking creation routes
-router.post("/apartment", createApartmentBooking);
-router.post("/room", createRoomBooking);
+router.post("/apartment", verifyToken, createApartmentBooking);
+router.post("/room", verifyToken, createRoomBooking);
 router.post("/check-availability", checkAvailability);
 
 // Booking management routes

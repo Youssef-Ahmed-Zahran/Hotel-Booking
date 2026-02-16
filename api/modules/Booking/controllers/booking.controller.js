@@ -36,130 +36,130 @@ export const createApartmentBooking = async (req, res, next) => {
     }
 
     const checkIn = new Date(checkInDate);
+    checkIn.setHours(0, 0, 0, 0);
     const checkOut = new Date(checkOutDate);
+    checkOut.setHours(0, 0, 0, 0);
 
     // Validate dates
     if (checkIn >= checkOut) {
       throw new ApiError(400, "Check-out date must be after check-in date");
     }
 
-    if (checkIn < new Date().setHours(0, 0, 0, 0)) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (checkIn < today) {
       throw new ApiError(400, "Check-in date cannot be in the past");
     }
 
-    // Check if apartment exists and is available
-    const apartment = await prisma.apartment.findUnique({
-      where: { id: apartmentId },
-      include: {
-        rooms: true,
-      },
-    });
-
-    if (!apartment) {
-      throw new ApiError(404, "Apartment not found");
-    }
-
-    if (!apartment.isAvailable) {
-      throw new ApiError(400, "Apartment is not available for booking");
-    }
-
-    // Check capacity
-    if (numberOfGuests > apartment.totalCapacity) {
-      throw new ApiError(
-        400,
-        `Apartment capacity is ${apartment.totalCapacity} guests`
-      );
-    }
-
-    // CRITICAL: Check for conflicting bookings
-    // 1. Check if apartment is already booked
-    const apartmentBookings = await prisma.booking.findMany({
-      where: {
-        apartmentId,
-        status: {
-          in: ["PENDING", "CONFIRMED"],
+    // Use transaction to ensure availability check and booking creation are atomic
+    const booking = await prisma.$transaction(async (tx) => {
+      // Check if apartment exists and is available
+      const apartment = await tx.apartment.findUnique({
+        where: { id: apartmentId },
+        include: {
+          rooms: true,
         },
-        OR: [
-          {
-            AND: [
-              { checkInDate: { lte: checkOut } },
-              { checkOutDate: { gte: checkIn } },
-            ],
-          },
-        ],
-      },
-    });
+      });
 
-    if (apartmentBookings.length > 0) {
-      throw new ApiError(
-        400,
-        "Apartment is already booked for the selected dates"
-      );
-    }
+      if (!apartment) {
+        throw new ApiError(404, "Apartment not found");
+      }
 
-    // 2. Check if any room in the apartment is booked
-    const roomIds = apartment.rooms.map((room) => room.id);
-    if (roomIds.length > 0) {
-      const roomBookings = await prisma.booking.findMany({
+      if (!apartment.isAvailable) {
+        throw new ApiError(400, "Apartment is not available for booking");
+      }
+
+      // Check capacity
+      if (numberOfGuests > apartment.totalCapacity) {
+        throw new ApiError(
+          400,
+          `Apartment capacity is ${apartment.totalCapacity} guests`
+        );
+      }
+
+      // CRITICAL: Check for conflicting bookings
+      // Overlap logic: (eb_in < out) AND (eb_out > in)
+      // Including COMPLETED status as they occupy the room
+      const conflictingBookings = await tx.booking.findMany({
         where: {
-          roomId: {
-            in: roomIds,
-          },
+          apartmentId,
           status: {
-            in: ["PENDING", "CONFIRMED"],
+            in: ["PENDING", "CONFIRMED", "COMPLETED"],
           },
-          OR: [
-            {
-              AND: [
-                { checkInDate: { lte: checkOut } },
-                { checkOutDate: { gte: checkIn } },
-              ],
-            },
+          AND: [
+            { checkInDate: { lt: checkOut } },
+            { checkOutDate: { gt: checkIn } },
           ],
         },
       });
 
-      if (roomBookings.length > 0) {
+      if (conflictingBookings.length > 0) {
         throw new ApiError(
           400,
-          "Cannot book apartment because some rooms are already booked"
+          "Apartment is already booked for the selected dates"
         );
       }
-    }
 
-    // Create the booking
-    const booking = await prisma.booking.create({
-      data: {
-        userId,
-        hotelId,
-        apartmentId,
-        checkInDate: checkIn,
-        checkOutDate: checkOut,
-        numberOfGuests,
-        bookingType: "APARTMENT",
-        paymentAmount,
-        paymentCurrency: paymentCurrency || "USD",
-        paymentMethod,
-        paymentStatus: req.body.paymentStatus || "PENDING",
-        paymentTransactionId: req.body.paymentTransactionId,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            email: true,
+      // Check if any room in the apartment is booked individually
+      const roomIds = apartment.rooms.map((room) => room.id);
+      if (roomIds.length > 0) {
+        const roomBookings = await tx.booking.findMany({
+          where: {
+            roomId: {
+              in: roomIds,
+            },
+            status: {
+              in: ["PENDING", "CONFIRMED", "COMPLETED"],
+            },
+            AND: [
+              { checkInDate: { lt: checkOut } },
+              { checkOutDate: { gt: checkIn } },
+            ],
           },
+        });
+
+        if (roomBookings.length > 0) {
+          throw new ApiError(
+            400,
+            "Cannot book apartment because some rooms are already booked"
+          );
+        }
+      }
+
+      // Create the booking
+      return await tx.booking.create({
+        data: {
+          userId: req.user.id || userId, // Use authenticated user ID if available
+          hotelId,
+          apartmentId,
+          checkInDate: checkIn,
+          checkOutDate: checkOut,
+          numberOfGuests,
+          bookingType: "APARTMENT",
+          paymentAmount,
+          paymentCurrency: paymentCurrency || "USD",
+          paymentMethod,
+          paymentStatus: req.body.paymentStatus || "PENDING",
+          paymentTransactionId: req.body.paymentTransactionId,
         },
-        hotel: {
-          select: {
-            id: true,
-            name: true,
-            address: true,
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            },
           },
+          hotel: {
+            select: {
+              id: true,
+              name: true,
+              address: true,
+            },
+          },
+          apartment: true,
         },
-        apartment: true,
-      },
+      });
     });
 
     return res
@@ -204,135 +204,134 @@ export const createRoomBooking = async (req, res, next) => {
     }
 
     const checkIn = new Date(checkInDate);
+    checkIn.setHours(0, 0, 0, 0);
     const checkOut = new Date(checkOutDate);
+    checkOut.setHours(0, 0, 0, 0);
 
     // Validate dates
     if (checkIn >= checkOut) {
       throw new ApiError(400, "Check-out date must be after check-in date");
     }
 
-    if (checkIn < new Date()) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (checkIn < today) {
       throw new ApiError(400, "Check-in date cannot be in the past");
     }
 
-    // Check if room exists and is available
-    const room = await prisma.room.findUnique({
-      where: { id: roomId },
-      include: {
-        apartment: true,
-      },
-    });
-
-    if (!room) {
-      throw new ApiError(404, "Room not found");
-    }
-
-    if (!room.isAvailable) {
-      throw new ApiError(400, "Room is not available for booking");
-    }
-
-    if (!room.bookableIndividually) {
-      throw new ApiError(400, "This room cannot be booked individually");
-    }
-
-    // Check capacity
-    if (numberOfGuests > room.capacity) {
-      throw new ApiError(400, `Room capacity is ${room.capacity} guests`);
-    }
-
-    // CRITICAL: Check for conflicting bookings
-    // 1. Check if room is already booked
-    const roomBookings = await prisma.booking.findMany({
-      where: {
-        roomId,
-        status: {
-          in: ["PENDING", "CONFIRMED"],
+    // Use transaction to ensure availability check and booking creation are atomic
+    const booking = await prisma.$transaction(async (tx) => {
+      // Check if room exists and is available
+      const room = await tx.room.findUnique({
+        where: { id: roomId },
+        include: {
+          apartment: true,
         },
-        OR: [
-          {
-            AND: [
-              { checkInDate: { lte: checkOut } },
-              { checkOutDate: { gte: checkIn } },
-            ],
-          },
-        ],
-      },
-    });
+      });
 
-    if (roomBookings.length > 0) {
-      throw new ApiError(400, "Room is already booked for the selected dates");
-    }
+      if (!room) {
+        throw new ApiError(404, "Room not found");
+      }
 
-    // 2. If room belongs to an apartment, check if apartment is booked
-    if (room.apartmentId) {
-      const apartmentBookings = await prisma.booking.findMany({
+      if (!room.isAvailable) {
+        throw new ApiError(400, "Room is not available for booking");
+      }
+
+      if (!room.bookableIndividually) {
+        throw new ApiError(400, "This room cannot be booked individually");
+      }
+
+      // Check capacity
+      if (numberOfGuests > room.capacity) {
+        throw new ApiError(400, `Room capacity is ${room.capacity} guests`);
+      }
+
+      // CRITICAL: Check for conflicting bookings
+      // Overlap logic: (eb_in < out) AND (eb_out > in)
+      const conflictingBookings = await tx.booking.findMany({
         where: {
-          apartmentId: room.apartmentId,
+          roomId,
           status: {
-            in: ["PENDING", "CONFIRMED"],
+            in: ["PENDING", "CONFIRMED", "COMPLETED"],
           },
-          OR: [
-            {
-              AND: [
-                { checkInDate: { lte: checkOut } },
-                { checkOutDate: { gte: checkIn } },
-              ],
-            },
+          AND: [
+            { checkInDate: { lt: checkOut } },
+            { checkOutDate: { gt: checkIn } },
           ],
         },
       });
 
-      if (apartmentBookings.length > 0) {
-        throw new ApiError(
-          400,
-          "Cannot book room because the entire apartment is already booked"
-        );
+      if (conflictingBookings.length > 0) {
+        throw new ApiError(400, "Room is already booked for the selected dates");
       }
-    }
 
-    // Create the booking
-    const booking = await prisma.booking.create({
-      data: {
-        userId,
-        hotelId,
-        roomId,
-        checkInDate: checkIn,
-        checkOutDate: checkOut,
-        numberOfGuests,
-        bookingType: "ROOM",
-        paymentAmount,
-        paymentCurrency: paymentCurrency || "USD",
-        paymentMethod,
-        paymentStatus: req.body.paymentStatus || "PENDING",
-        paymentTransactionId: req.body.paymentTransactionId,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            email: true,
+      // If room belongs to an apartment, check if apartment is booked
+      if (room.apartmentId) {
+        const apartmentBookings = await tx.booking.findMany({
+          where: {
+            apartmentId: room.apartmentId,
+            status: {
+              in: ["PENDING", "CONFIRMED", "COMPLETED"],
+            },
+            AND: [
+              { checkInDate: { lt: checkOut } },
+              { checkOutDate: { gt: checkIn } },
+            ],
           },
+        });
+
+        if (apartmentBookings.length > 0) {
+          throw new ApiError(
+            400,
+            "Cannot book room because the entire apartment is already booked"
+          );
+        }
+      }
+
+      // Create the booking
+      return await tx.booking.create({
+        data: {
+          userId: req.user.id || userId,
+          hotelId,
+          roomId,
+          checkInDate: checkIn,
+          checkOutDate: checkOut,
+          numberOfGuests,
+          bookingType: "ROOM",
+          paymentAmount,
+          paymentCurrency: paymentCurrency || "USD",
+          paymentMethod,
+          paymentStatus: req.body.paymentStatus || "PENDING",
+          paymentTransactionId: req.body.paymentTransactionId,
         },
-        hotel: {
-          select: {
-            id: true,
-            name: true,
-            address: true,
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            },
           },
-        },
-        room: {
-          include: {
-            apartment: {
-              select: {
-                id: true,
-                name: true,
-                apartmentNumber: true,
+          hotel: {
+            select: {
+              id: true,
+              name: true,
+              address: true,
+            },
+          },
+          room: {
+            include: {
+              apartment: {
+                select: {
+                  id: true,
+                  name: true,
+                  apartmentNumber: true,
+                },
               },
             },
           },
         },
-      },
+      });
     });
 
     return res
@@ -723,13 +722,17 @@ export const checkAvailability = async (req, res, next) => {
     }
 
     const checkIn = new Date(checkInDate);
+    checkIn.setHours(0, 0, 0, 0);
     const checkOut = new Date(checkOutDate);
+    checkOut.setHours(0, 0, 0, 0);
 
     if (checkIn >= checkOut) {
       throw new ApiError(400, "Check-out date must be after check-in date");
     }
 
-    if (checkIn < new Date().setHours(0, 0, 0, 0)) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (checkIn < today) {
       throw new ApiError(400, "Check-in date cannot be in the past");
     }
 
@@ -749,14 +752,10 @@ export const checkAvailability = async (req, res, next) => {
       const apartmentBookings = await prisma.booking.findMany({
         where: {
           apartmentId,
-          status: { in: ["PENDING", "CONFIRMED"] },
-          OR: [
-            {
-              AND: [
-                { checkInDate: { lte: checkOut } },
-                { checkOutDate: { gte: checkIn } },
-              ],
-            },
+          status: { in: ["PENDING", "CONFIRMED", "COMPLETED"] },
+          AND: [
+            { checkInDate: { lt: checkOut } },
+            { checkOutDate: { gt: checkIn } },
           ],
         },
       });
@@ -782,14 +781,10 @@ export const checkAvailability = async (req, res, next) => {
         const roomBookings = await prisma.booking.findMany({
           where: {
             roomId: { in: roomIds },
-            status: { in: ["PENDING", "CONFIRMED"] },
-            OR: [
-              {
-                AND: [
-                  { checkInDate: { lte: checkOut } },
-                  { checkOutDate: { gte: checkIn } },
-                ],
-              },
+            status: { in: ["PENDING", "CONFIRMED", "COMPLETED"] },
+            AND: [
+              { checkInDate: { lt: checkOut } },
+              { checkOutDate: { gt: checkIn } },
             ],
           },
         });
@@ -825,14 +820,10 @@ export const checkAvailability = async (req, res, next) => {
       const roomBookings = await prisma.booking.findMany({
         where: {
           roomId,
-          status: { in: ["PENDING", "CONFIRMED"] },
-          OR: [
-            {
-              AND: [
-                { checkInDate: { lte: checkOut } },
-                { checkOutDate: { gte: checkIn } },
-              ],
-            },
+          status: { in: ["PENDING", "CONFIRMED", "COMPLETED"] },
+          AND: [
+            { checkInDate: { lt: checkOut } },
+            { checkOutDate: { gt: checkIn } },
           ],
         },
       });
@@ -857,14 +848,10 @@ export const checkAvailability = async (req, res, next) => {
         const apartmentBookings = await prisma.booking.findMany({
           where: {
             apartmentId: room.apartmentId,
-            status: { in: ["PENDING", "CONFIRMED"] },
-            OR: [
-              {
-                AND: [
-                  { checkInDate: { lte: checkOut } },
-                  { checkOutDate: { gte: checkIn } },
-                ],
-              },
+            status: { in: ["PENDING", "CONFIRMED", "COMPLETED"] },
+            AND: [
+              { checkInDate: { lt: checkOut } },
+              { checkOutDate: { gt: checkIn } },
             ],
           },
         });
